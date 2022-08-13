@@ -1,7 +1,6 @@
 package com.filip.managementapp.config;
 
-import com.filip.managementapp.repository.UserRepository;
-import com.filip.managementapp.security.provider.CustomAuthenticationProvider;
+import com.filip.managementapp.security.JwtAuthenticationEntryPoint;
 import com.filip.managementapp.service.MyUserDetailsService;
 import com.filip.managementapp.security.util.JwtTokenUtils;
 import com.filip.managementapp.security.filter.JwtTokenVerifierFilter;
@@ -24,7 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserRepository userRepository;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final MyUserDetailsService myUserDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationConfiguration authConfig;
@@ -45,6 +44,8 @@ public class SecurityConfig {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .and()
                 .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager(authConfig), jwtTokenUtils))
                 .addFilterAfter(new JwtTokenVerifierFilter(jwtTokenUtils), JwtUsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
@@ -62,7 +63,7 @@ public class SecurityConfig {
     }
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new CustomAuthenticationProvider(userRepository);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(myUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;

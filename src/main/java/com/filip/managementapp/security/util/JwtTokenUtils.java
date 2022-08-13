@@ -1,6 +1,6 @@
 package com.filip.managementapp.security.util;
 
-import com.filip.managementapp.security.jwt.JwtProps;
+import com.filip.managementapp.security.JwtProps;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

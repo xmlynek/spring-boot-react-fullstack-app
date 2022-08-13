@@ -1,4 +1,4 @@
-package com.filip.managementapp.security.jwt;
+package com.filip.managementapp.security;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
