@@ -1,8 +1,6 @@
 package com.filip.managementapp.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -14,14 +12,17 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
-    private RoleNames name;
+    private RoleName name;
 
     @ManyToMany(mappedBy = "roles")
     @ToString.Exclude
@@ -33,15 +34,15 @@ public class Role {
         if (!(o instanceof Role role)) return false;
 
         if (!Objects.equals(id, role.id)) return false;
-        if (!name.equals(role.name)) return false;
-        return users.equals(role.users);
+        if (name != role.name) return false;
+        return Objects.equals(users, role.users);
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + name.hashCode();
-        result = 31 * result + users.hashCode();
+        result = 31 * result + (users != null ? users.hashCode() : 0);
         return result;
     }
 }

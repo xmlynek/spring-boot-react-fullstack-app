@@ -15,6 +15,7 @@ import java.util.Set;
 @ToString
 @Getter
 @Setter
+@Builder
 public class User {
 
     @Id
@@ -43,7 +44,10 @@ public class User {
 
     private boolean isEnabled;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(
+            fetch = FetchType.EAGER,
+            cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE, CascadeType.DETACH}
+    )
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),

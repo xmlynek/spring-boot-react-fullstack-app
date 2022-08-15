@@ -1,10 +1,9 @@
 package com.filip.managementapp.config;
 
 import com.filip.managementapp.security.JwtAuthenticationEntryPoint;
-import com.filip.managementapp.service.MyUserDetailsService;
-import com.filip.managementapp.security.util.JwtTokenUtils;
 import com.filip.managementapp.security.filter.JwtTokenVerifierFilter;
-import com.filip.managementapp.security.filter.JwtUsernamePasswordAuthenticationFilter;
+import com.filip.managementapp.util.SecurityUtils;
+import com.filip.managementapp.service.MyUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +16,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -25,9 +30,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final MyUserDetailsService myUserDetailsService;
-    private final JwtTokenUtils jwtTokenUtils;
+    private final SecurityUtils securityUtils;
     private final AuthenticationConfiguration authConfig;
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
@@ -37,20 +41,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .addFilterBefore(new JwtTokenVerifierFilter(securityUtils), UsernamePasswordAuthenticationFilter.class)
+                .anonymous().and()
+                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                    .and()
                 .csrf().disable()
                 .cors()
-                .and()
+                    .and()
                 .authenticationProvider(authenticationProvider())
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .and()
-                .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager(authConfig), jwtTokenUtils))
-                .addFilterAfter(new JwtTokenVerifierFilter(jwtTokenUtils), JwtUsernamePasswordAuthenticationFilter.class)
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
                 .authorizeRequests()
-                .antMatchers("/login*", "/logout*", "/").permitAll()
-                .antMatchers("/kebab*").hasAuthority("ADMIN")
+                    .antMatchers("/", "/api/v1/users", "/api/v1/users/**", "/api/v1/auth/**").permitAll()
+                    .antMatchers("/kebab*").hasAuthority("ADMIN")
                 .anyRequest()
                 .authenticated();
 
@@ -58,7 +62,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    public AuthenticationManager authenticationManager() throws Exception {
         return authConfig.getAuthenticationManager();
     }
     @Bean
@@ -67,5 +71,18 @@ public class SecurityConfig {
         authProvider.setUserDetailsService(myUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 }

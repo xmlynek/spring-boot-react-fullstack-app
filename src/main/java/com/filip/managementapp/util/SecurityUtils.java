@@ -1,38 +1,37 @@
-package com.filip.managementapp.security.util;
+package com.filip.managementapp.util;
 
-import com.filip.managementapp.security.JwtProps;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class JwtTokenUtils {
-
+@Getter
+@RequiredArgsConstructor
+public class SecurityUtils {
     public static final String CLAIMS_AUTHORITIES_KEY = "authorities";
     private final SecretKey secretKey;
-    @Getter
-    private final JwtProps jwtProps;
-
-    @Autowired
-    public JwtTokenUtils(JwtProps jwtProps) {
-        this.jwtProps = jwtProps;
-        this.secretKey = Keys.hmacShaKeyFor(jwtProps.getSecretKey().getBytes());
-    }
+    @Value("${application.jwt.token-expiration-after-days}")
+    private int tokenExpirationAfterDays;
+    @Value("${application.jwt.cookieName}")
+    private String jwtCookieName;
 
     public String generateJwtToken(Authentication auth) {
-        var authorities = auth.getAuthorities()
+        Set<String> authorities = auth.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
@@ -40,18 +39,23 @@ public class JwtTokenUtils {
         return Jwts.builder()
                 .setSubject(auth.getName())
                 .setIssuedAt(new Date())
-                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(jwtProps.getTokenExpirationAfterDays())))
+                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(tokenExpirationAfterDays)))
                 .claim(CLAIMS_AUTHORITIES_KEY, authorities)
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String parseJwtTokenFromRequestHeader(HttpServletRequest request) {
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (token != null && token.startsWith(jwtProps.getTokenPrefix())) {
-            token = token.replace(jwtProps.getTokenPrefix(), "");
-        }
-        return token;
+    public ResponseCookie generateJwtCookie(Authentication auth) {
+        String generatedJwt = generateJwtToken(auth);
+        return ResponseCookie
+                .from(jwtCookieName, generatedJwt)
+                .path("/api")
+                .httpOnly(true)
+                .build();
+    }
+
+    public Cookie getJwtCookie(HttpServletRequest request) {
+        return WebUtils.getCookie(request, jwtCookieName);
     }
 
     public Claims parseClaimsFromToken(String token) {

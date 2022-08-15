@@ -1,6 +1,6 @@
 package com.filip.managementapp.model;
 
-public enum RoleNames {
+public enum RoleName {
     USER,
     ADMIN
 }
