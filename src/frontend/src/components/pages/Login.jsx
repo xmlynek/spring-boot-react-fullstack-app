@@ -22,7 +22,7 @@ const Login = () => {
 
   const onSubmitHandler = async (values) => {
     axios
-      .post('http://localhost:8080/login', values)
+      .post('http://localhost:8080/api/v1/auth/login', values)
       .then((res) => {
         console.log(res);
         setCurrentUser(() => res.data);
