@@ -1,5 +1,6 @@
 import { LockOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, Select } from 'antd';
+import axios from 'axios';
 import React, { useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthContext from '../../store/auth-context';
@@ -19,8 +20,11 @@ export const Register = () => {
     }
   }, [currentUser, navigate, locationFrom]);
 
-  const onFinish = (values) => {
-    console.log('Success:', values);
+  const onSubmitHandler = async (values) => {
+    axios
+      .post('http://localhost:8080/api/v1/auth/register', values)
+      .then(console.log)
+      .catch(console.log);
   };
 
   return (
@@ -32,10 +36,10 @@ export const Register = () => {
         name="normal_registration"
         className="login-form"
         initialValues={{ remember: true }}
-        onFinish={onFinish}>
+        onFinish={onSubmitHandler}>
         <Form.Item
           label="First name"
-          name="firstname"
+          name="firstName"
           rules={[{ required: true, message: 'Please input your first name!' }]}>
           <Input
             prefix={<UserOutlined className="site-form-item-icon" />}
@@ -44,7 +48,7 @@ export const Register = () => {
         </Form.Item>
         <Form.Item
           label="Last name"
-          name="lastname"
+          name="lastName"
           rules={[{ required: true, message: 'Please input your last name!' }]}>
           <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Lastname" />
         </Form.Item>
@@ -75,7 +79,7 @@ export const Register = () => {
           />
         </Form.Item>
         <Form.Item
-          name="confirm"
+          name="confirmPassword"
           label="Confirm Password"
           dependencies={['password']}
           hasFeedback
@@ -113,7 +117,7 @@ export const Register = () => {
         <Form.Item
           label="Birth date"
           required={true}
-          name="birthdate"
+          name="birthDate"
           rules={[{ required: true, message: 'Please input your birth date!' }]}>
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
