@@ -2,6 +2,7 @@ package com.filip.managementapp.service;
 
 import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRequest;
+import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.User;
 import com.filip.managementapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,7 @@ public class UserService {
                         .lastName(userRequest.lastName())
                         .email(userRequest.email())
                         .password(passwordEncoder.encode(userRequest.password()))
-                        .gender(userRequest.gender())
+                        .gender(Gender.valueOf(userRequest.gender()))
                         .birthDate(userRequest.birthDate())
                         .isEnabled(userRequest.isEnabled())
                         .build());
@@ -59,7 +60,7 @@ public class UserService {
     public UserDto updateUser(Long id, UserRequest userRequest) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User with id %d not found", id)));
-        user.setGender(userRequest.gender());
+        user.setGender(Gender.valueOf(userRequest.gender()));
         user.setEmail(userRequest.email());
         user.setEnabled(userRequest.isEnabled());
         user.setBirthDate(userRequest.birthDate());

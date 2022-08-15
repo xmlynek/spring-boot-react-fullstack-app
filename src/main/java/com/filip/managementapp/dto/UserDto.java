@@ -5,7 +5,7 @@ import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.User;
 import lombok.Builder;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +20,7 @@ public record UserDto (Long id,
                               shape = JsonFormat.Shape.STRING,
                               pattern = "yyyy-MM-dd",
                               timezone = "Europe/Bratislava")
-                       Date birthDate,
+                      LocalDate birthDate,
                       List<String> roles) {
 
     public static UserDto map(User user) {

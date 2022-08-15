@@ -3,6 +3,7 @@ package com.filip.managementapp.service;
 import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRegistrationRequest;
 import com.filip.managementapp.dto.UsernamePasswordAuthRequest;
+import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.Role;
 import com.filip.managementapp.model.RoleName;
 import com.filip.managementapp.model.User;
@@ -63,7 +64,7 @@ public class AuthService {
                         .lastName(userRegistrationRequest.lastName())
                         .email(userRegistrationRequest.email())
                         .password(passwordEncoder.encode(userRegistrationRequest.password()))
-                        .gender(userRegistrationRequest.gender())
+                        .gender(Gender.valueOf(userRegistrationRequest.gender()))
                         .birthDate(userRegistrationRequest.birthDate())
                         .roles(new HashSet<>())
                         .isEnabled(true)

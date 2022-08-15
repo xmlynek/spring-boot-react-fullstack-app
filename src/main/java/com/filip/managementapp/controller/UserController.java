@@ -6,6 +6,7 @@ import com.filip.managementapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -28,12 +29,12 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto createUser(@RequestBody UserRequest userRequest) {
+    public UserDto createUser(@RequestBody @Valid UserRequest userRequest) {
         return userService.createUser(userRequest);
     }
 
     @PutMapping("/{id}")
-    public UserDto updateUser(@PathVariable("id") Long id, @RequestBody UserRequest userRequest) {
+    public UserDto updateUser(@PathVariable("id") Long id, @RequestBody @Valid UserRequest userRequest) {
         return userService.updateUser(id, userRequest);
     }
 

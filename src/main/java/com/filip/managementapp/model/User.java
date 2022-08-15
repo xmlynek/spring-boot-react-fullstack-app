@@ -3,7 +3,7 @@ package com.filip.managementapp.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -39,8 +39,7 @@ public class User {
     private Gender gender;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date birthDate;
+    private LocalDate birthDate;
 
     private boolean isEnabled;
 
