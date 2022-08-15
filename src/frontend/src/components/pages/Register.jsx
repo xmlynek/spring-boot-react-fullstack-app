@@ -1,10 +1,24 @@
 import { LockOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, Select } from 'antd';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import AuthContext from '../../store/auth-context';
 import MainHeading from '../layout/MainHeading';
 
 export const Register = () => {
+  const authCtx = useContext(AuthContext);
+  const { currentUser } = authCtx;
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const locationFrom = location.state && location.state.from ? location.state.from : null;
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate(locationFrom ? locationFrom : '/', { replace: true, state: location.state });
+    }
+  }, [currentUser, navigate, locationFrom]);
+
   const onFinish = (values) => {
     console.log('Success:', values);
   };
