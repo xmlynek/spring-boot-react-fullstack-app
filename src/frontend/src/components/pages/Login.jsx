@@ -1,12 +1,34 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input } from 'antd';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import axios from 'axios';
+import React, { useContext, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import AuthContext from '../../store/auth-context';
 import MainHeading from '../layout/MainHeading';
 
 const Login = () => {
-  const onFinish = (values) => {
-    console.log('Success:', values);
+  const authCtx = useContext(AuthContext);
+  const { currentUser, setCurrentUser } = authCtx;
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const locationFrom = location.state && location.state.from ? location.state.from : null;
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate(locationFrom ? locationFrom : '/', { replace: true, state: location.state });
+    }
+  }, [currentUser, navigate, locationFrom]);
+
+  const onSubmitHandler = async (values) => {
+    axios
+      .post('http://localhost:8080/login', values)
+      .then((res) => {
+        console.log(res);
+        setCurrentUser(() => res.data);
+        navigate(locationFrom ? locationFrom : '/', { replace: true });
+      })
+      .catch(console.log);
   };
 
   return (
@@ -18,7 +40,7 @@ const Login = () => {
         name="normal_login"
         className="login-form"
         initialValues={{ remember: true }}
-        onFinish={onFinish}>
+        onFinish={onSubmitHandler}>
         <Form.Item
           label="Email"
           name="username"

@@ -5,6 +5,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import React from 'react';
 import PageLayout from './components/layout/PageLayout';
 import Homepage from './components/pages/Homepage';
+import UserProfile from './components/pages/UserProfile';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/home" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<UserProfile />} />
         <Route path="*" element={<Navigate to={'/home'} />} />
       </Routes>
     </PageLayout>
