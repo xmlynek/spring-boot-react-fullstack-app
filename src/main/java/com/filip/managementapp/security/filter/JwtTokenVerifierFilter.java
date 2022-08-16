@@ -31,7 +31,7 @@ public class JwtTokenVerifierFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
             Cookie jwtCookie = securityUtils.getJwtCookie(request);
-            if(jwtCookie != null) {
+            if(jwtCookie != null && securityUtils.validateJwtToken(jwtCookie.getValue())) {
                 String jwtToken = jwtCookie.getValue();
                 Claims body = securityUtils.parseClaimsFromToken(jwtToken);
 
