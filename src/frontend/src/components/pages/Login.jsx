@@ -1,14 +1,17 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input } from 'antd';
-import axios from 'axios';
 import React, { useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import useAxiosRequest, { State } from '../../hooks/useAxiosRequest';
 import AuthContext from '../../store/auth-context';
 import MainHeading from '../layout/MainHeading';
+import { errorNotification, successNotification } from '../UI/Notification';
 
 const Login = () => {
   const authCtx = useContext(AuthContext);
   const { currentUser, setCurrentUser } = authCtx;
+
+  const [state, applyRequest] = useAxiosRequest();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,15 +23,24 @@ const Login = () => {
     }
   }, [currentUser, navigate, locationFrom]);
 
+  useEffect(() => {
+    if (state.status === State.SUCCESS) {
+      successNotification('Login successful', 'Now you can browse and enjoy this app');
+    } else if (state.status == State.ERROR) {
+      errorNotification('Login failed', state.errMsg);
+    }
+  }, [state]);
+
   const onSubmitHandler = async (values) => {
-    axios
-      .post('http://localhost:8080/api/v1/auth/login', values)
-      .then((res) => {
-        console.log(res);
-        setCurrentUser(() => res.data);
-        navigate(locationFrom ? locationFrom : '/', { replace: true });
-      })
-      .catch(console.log);
+    applyRequest(
+      {
+        url: 'api/v1/auth/login',
+        withCredentials: true,
+        method: 'POST',
+        data: values
+      },
+      setCurrentUser
+    );
   };
 
   return (
@@ -51,7 +63,7 @@ const Login = () => {
           label="Password"
           name="password"
           rules={[{ required: true, message: 'Please input your Password!' }]}>
-          <Input
+          <Input.Password
             prefix={<LockOutlined className="site-form-item-icon" />}
             type="password"
             placeholder="Password"
@@ -59,7 +71,11 @@ const Login = () => {
         </Form.Item>
 
         <div className="text-center mt-2">
-          <Button type="primary" htmlType="submit" className="login-form-button width-responsive">
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="login-form-button width-responsive"
+            loading={state.isLoading}>
             Log in
           </Button>
           <p className="mt-2">

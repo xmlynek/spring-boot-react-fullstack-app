@@ -1,14 +1,16 @@
 import { LockOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, Select } from 'antd';
-import axios from 'axios';
 import React, { useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import useAxiosRequest, { State } from '../../hooks/useAxiosRequest';
 import AuthContext from '../../store/auth-context';
 import MainHeading from '../layout/MainHeading';
+import { errorNotification, successNotification } from '../UI/Notification';
 
-export const Register = () => {
+const Register = () => {
   const authCtx = useContext(AuthContext);
   const { currentUser } = authCtx;
+  const [state, applyRequest] = useAxiosRequest();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,11 +22,25 @@ export const Register = () => {
     }
   }, [currentUser, navigate, locationFrom]);
 
+  useEffect(() => {
+    if (state.status === State.SUCCESS) {
+      successNotification(
+        'Registration successful',
+        'You have been successfully registered. Now Log in!'
+      );
+      navigate('/login', { replace: true });
+    } else if (state.status == State.ERROR) {
+      errorNotification('Registration failed', state.errMsg);
+    }
+  }, [state]);
+
   const onSubmitHandler = async (values) => {
-    axios
-      .post('http://localhost:8080/api/v1/auth/register', values)
-      .then(console.log)
-      .catch(console.log);
+    applyRequest({
+      url: 'api/v1/auth/register',
+      withCredentials: true,
+      method: 'POST',
+      data: values
+    });
   };
 
   return (
@@ -122,7 +138,11 @@ export const Register = () => {
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
         <div className="text-center mt-2">
-          <Button type="primary" htmlType="submit" className="login-form-button width-responsive">
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="login-form-button width-responsive"
+            loading={state.isLoading}>
             Register
           </Button>
           <p className="mt-2">
@@ -133,3 +153,5 @@ export const Register = () => {
     </div>
   );
 };
+
+export default Register;
