@@ -11,7 +11,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -19,11 +19,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid UsernamePasswordAuthRequest authRequest) {
-            return authService.login(authRequest);
+        return authService.login(authRequest);
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid UserRegistrationRequest userRegistrationRequest) {
         return authService.registerUser(userRegistrationRequest);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return authService.logout();
     }
 }

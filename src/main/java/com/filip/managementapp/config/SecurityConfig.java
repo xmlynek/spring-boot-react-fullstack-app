@@ -53,7 +53,7 @@ public class SecurityConfig {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                 .authorizeRequests()
-                    .antMatchers("/", "/api/v1/users", "/api/v1/users/**", "/api/v1/auth/**").permitAll()
+                    .antMatchers("/", "/api/v1/auth/**", "/api/v1/auth**").permitAll()
                     .antMatchers("/kebab*").hasAuthority("ADMIN")
                 .anyRequest()
                 .authenticated();

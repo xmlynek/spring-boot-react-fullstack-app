@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -17,6 +18,10 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/current-user")
+    public UserDto getCurrentUser(Principal principal) {
+        return userService.getCurrentlyLoggedUser(principal);
+    }
 
     @GetMapping
     public List<UserDto> findAllUsers() {

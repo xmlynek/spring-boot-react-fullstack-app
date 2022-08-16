@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,11 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
+    public UserDto getCurrentlyLoggedUser(Principal principal) {
+        return UserDto.map(userRepository.findByEmail(principal.getName())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found")));
+    }
 
     @Transactional(readOnly = true)
     public List<UserDto> findAllUsers() {

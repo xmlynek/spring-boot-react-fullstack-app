@@ -78,4 +78,11 @@ public class AuthService {
         userRepository.save(user);
         return ResponseEntity.ok().body("Registration was successful. Now log in.");
     }
+
+    public ResponseEntity<?> logout() {
+        ResponseCookie jwtCookie = securityUtils.deleteJwtCookie();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .build();
+    }
 }
