@@ -67,9 +67,9 @@ public class AuthService {
                         .isEnabled(true)
                         .build();
 
-        Role role = roleService.existsByName(RoleName.USER)
-                ? roleService.findRoleByName(RoleName.USER)
-                : roleService.createRole(RoleName.USER);
+        Role role = roleService.existsByName(RoleName.ROLE_USER)
+                ? roleService.findRoleByName(RoleName.ROLE_USER)
+                : roleService.createRole(RoleName.ROLE_USER);
 
         user.getRoles().add(role);
         userRepository.save(user);

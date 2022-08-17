@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -41,7 +42,7 @@ public class ApiExceptionControllerAdvice {
         return logAndCreateResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND, e.getClass().getName());
     }
 
-    @ExceptionHandler(value = {ApiForbiddenException.class, HttpClientErrorException.Forbidden.class})
+    @ExceptionHandler(value = {ApiForbiddenException.class, HttpClientErrorException.Forbidden.class, AccessDeniedException.class})
     public ResponseEntity<Object> handleForbiddenException(Exception e) {
         return logAndCreateResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN, e.getClass().getName());
     }
