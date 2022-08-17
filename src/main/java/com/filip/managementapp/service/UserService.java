@@ -2,6 +2,8 @@ package com.filip.managementapp.service;
 
 import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRequest;
+import com.filip.managementapp.exception.ResourceAlreadyExistsException;
+import com.filip.managementapp.exception.ResourceNotFoundException;
 import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.User;
 import com.filip.managementapp.repository.UserRepository;
@@ -10,8 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityExistsException;
-import javax.persistence.EntityNotFoundException;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDto getCurrentlyLoggedUser(Principal principal) {
         return UserDto.map(userRepository.findByEmail(principal.getName())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found")));
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found")));
     }
 
     @Transactional(readOnly = true)
@@ -41,14 +41,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDto findUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id %d not found", id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User with id %d not found", id)));
         return UserDto.map(user);
     }
 
     @Transactional
     public UserDto createUser(UserRequest userRequest) {
         if (userRepository.existsByEmail(userRequest.email())) {
-            throw new EntityExistsException("User with given username already exists");
+            throw new ResourceAlreadyExistsException("User with given email already exists");
         }
         User createdUser = userRepository.save(User.builder()
                         .firstName(userRequest.firstName())
@@ -65,7 +65,7 @@ public class UserService {
     @Transactional
     public UserDto updateUser(Long id, UserRequest userRequest) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id %d not found", id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User with id %d not found", id)));
         user.setGender(Gender.valueOf(userRequest.gender()));
         user.setEmail(userRequest.email());
         user.setEnabled(userRequest.isEnabled());
@@ -78,7 +78,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id %d not found", id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User with id %d not found", id)));
         userRepository.delete(user);
     }
 

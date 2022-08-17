@@ -3,6 +3,7 @@ package com.filip.managementapp.service;
 import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRegistrationRequest;
 import com.filip.managementapp.dto.UsernamePasswordAuthRequest;
+import com.filip.managementapp.exception.ResourceAlreadyExistsException;
 import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.Role;
 import com.filip.managementapp.model.RoleName;
@@ -22,7 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityExistsException;
 import java.util.HashSet;
 
 @Service
@@ -53,10 +53,7 @@ public class AuthService {
     @Transactional
     public ResponseEntity<?> registerUser(UserRegistrationRequest userRegistrationRequest) {
         if (userRepository.existsByEmail(userRegistrationRequest.email())) {
-            throw new EntityExistsException("User with given username already exists");
-        }
-        if(!userRegistrationRequest.password().equals(userRegistrationRequest.confirmPassword())) {
-            throw new IllegalArgumentException("Passwords do not match");
+            throw new ResourceAlreadyExistsException("User with given email already exists");
         }
 
         User user = User.builder()
