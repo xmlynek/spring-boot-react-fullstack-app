@@ -1,12 +1,28 @@
 import { Menu } from 'antd';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import useAxiosRequest, { State } from '../../hooks/useAxiosRequest';
 import AuthContext from '../../store/auth-context';
+import { errorNotification, successNotification } from '../UI/Notification';
 import classes from './MainNavigation.module.css';
 
 const MainNavigation = () => {
   const authCtx = useContext(AuthContext);
-  const { currentUser } = authCtx;
+  const { currentUser, setCurrentUser } = authCtx;
+  const [state, applyRequest] = useAxiosRequest();
+
+  useEffect(() => {
+    if (state.status === State.SUCCESS) {
+      successNotification('Logout successful', 'Logout was successful');
+      setCurrentUser(() => null);
+    } else if (state.status === State.ERROR) {
+      errorNotification('Logout error', 'Error occurred while logging out. Try it later');
+    }
+  }, [state]);
+
+  const logoutHandler = () => {
+    applyRequest({ url: '/api/v1/auth/logout', method: 'POST' });
+  };
 
   return (
     <Menu theme="dark" mode="horizontal">
@@ -21,8 +37,11 @@ const MainNavigation = () => {
           <span className="nav-text h6">{currentUser ? 'Profile' : 'Login'}</span>
         </Link>
       </Menu.Item>
-      <Menu.Item key={'register'} className={classes.marginFromRight}>
-        <Link to={'register'} className="text-decoration-none">
+      <Menu.Item
+        key={'register'}
+        className={classes.marginFromRight}
+        onClick={currentUser ? logoutHandler : () => {}}>
+        <Link to={currentUser ? '/' : 'register'} className="text-decoration-none">
           <span className="nav-text h6">{currentUser ? 'Logout' : 'Register'}</span>
         </Link>
       </Menu.Item>

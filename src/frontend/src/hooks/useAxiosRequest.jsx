@@ -54,7 +54,7 @@ function useAxiosRequest() {
         applyData(res.data);
       })
       .catch((err) => {
-        dispatch({ type: State.ERROR, errMsg: err.message });
+        dispatch({ type: State.ERROR, errMsg: err.response.data.message });
       });
   }, []);
 

@@ -17,12 +17,6 @@ const Register = () => {
   const locationFrom = location.state && location.state.from ? location.state.from : null;
 
   useEffect(() => {
-    if (currentUser) {
-      navigate(locationFrom ? locationFrom : '/', { replace: true, state: location.state });
-    }
-  }, [currentUser, navigate, locationFrom]);
-
-  useEffect(() => {
     if (state.status === State.SUCCESS) {
       successNotification(
         'Registration successful',
@@ -33,6 +27,12 @@ const Register = () => {
       errorNotification('Registration failed', state.errMsg);
     }
   }, [state]);
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate(locationFrom ? locationFrom : '/', { replace: true, state: location.state });
+    }
+  }, [currentUser, navigate, locationFrom]);
 
   const onSubmitHandler = async (values) => {
     applyRequest({
