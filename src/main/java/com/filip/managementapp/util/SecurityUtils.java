@@ -1,8 +1,8 @@
 package com.filip.managementapp.util;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -23,15 +24,21 @@ import java.util.stream.Collectors;
 
 @Component
 @Getter
-@RequiredArgsConstructor
 public class SecurityUtils {
     private static final Logger logger = LoggerFactory.getLogger(SecurityUtils.class);
     public static final String CLAIMS_AUTHORITIES_KEY = "authorities";
-    private final SecretKey secretKey;
+    private SecretKey secretKey;
+    @Value("${application.jwt.secret-key}")
+    private String secretKeyString;
     @Value("${application.jwt.token-expiration-after-days}")
     private int tokenExpirationAfterDays;
     @Value("${application.jwt.cookieName}")
     private String jwtCookieName;
+
+    @PostConstruct
+    private void postConstruct() {
+        this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes());
+    }
 
     public String generateJwtToken(Authentication auth) {
         Set<String> authorities = auth.getAuthorities()
