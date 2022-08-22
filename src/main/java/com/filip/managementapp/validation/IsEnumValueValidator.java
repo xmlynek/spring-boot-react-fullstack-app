@@ -10,6 +10,13 @@ public class IsEnumValueValidator implements ConstraintValidator<IsEnumValue, Ch
 
     private List<String> acceptedValues;
 
+    public IsEnumValueValidator(List<String> acceptedValues) {
+        this.acceptedValues = acceptedValues;
+    }
+
+    public IsEnumValueValidator() {
+    }
+
     @Override
     public void initialize(IsEnumValue constraintAnnotation) {
         acceptedValues = Stream.of(constraintAnnotation.enumClass().getEnumConstants())

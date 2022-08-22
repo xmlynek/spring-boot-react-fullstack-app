@@ -28,7 +28,7 @@ public class ApiExceptionControllerAdvice {
     }
 
     @ExceptionHandler(value = AuthenticationException.class)
-    public ResponseEntity<Object> handleBadCredentialsException(AuthenticationException e) {
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException e) {
         return logAndCreateResponseEntity(e.getMessage(), HttpStatus.UNAUTHORIZED, e.getClass().getName());
     }
 
