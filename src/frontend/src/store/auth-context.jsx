@@ -8,7 +8,7 @@ const AuthContext = React.createContext({
 
 export const AuthContextProvider = (props) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const isAdmin = currentUser != null && currentUser.roles.includes('ADMIN');
+  const isAdmin = currentUser !== null && currentUser.roles && currentUser.roles.includes('ADMIN');
 
   return (
     <AuthContext.Provider
