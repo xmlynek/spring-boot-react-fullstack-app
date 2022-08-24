@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   postgres:
+    container_name: postgres
     image: postgres
     ports:
       - "5432:5432"
@@ -26,6 +27,18 @@ services:
       - postgres
     volumes:
       - pgadmin:/var/lib/pgadmin
+
+  spring-react-app:
+    image: xmlynek/spring-react-fullstack-app:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    restart: always
+    networks:
+      - postgres
+    depends_on:
+      - postgres
 
 networks:
   postgres:
