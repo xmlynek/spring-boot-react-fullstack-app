@@ -2,8 +2,8 @@ package com.filip.managementapp.config;
 
 import com.filip.managementapp.security.JwtAuthenticationEntryPoint;
 import com.filip.managementapp.security.filter.JwtTokenVerifierFilter;
-import com.filip.managementapp.util.SecurityUtils;
 import com.filip.managementapp.service.MyUserDetailsService;
+import com.filip.managementapp.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,21 +30,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    public static final String[] WHITELISTED_RESOURCE_ENDPOINTS = {
+            "/resources/**", "/static/**", "/css/**", "/js/**", "/images/**",
+            "/resources/static/**", "/css/**", "/js/**", "/img/**", "/fonts/**",
+            "/images/**", "/scss/**", "/vendor/**", "/favicon.ico", "/favicon.png"
+    };
+
+    public static final String[] WHITELISTED_REACT_ENDPOINTS = {
+            "/", "/home*", "/login*", "/register*", "/profile*"
+    };
+
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final MyUserDetailsService myUserDetailsService;
     private final SecurityUtils securityUtils;
     private final AuthenticationConfiguration authConfig;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .addFilterBefore(new JwtTokenVerifierFilter(securityUtils), UsernamePasswordAuthenticationFilter.class)
-                .anonymous().and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
                     .and()
                 .csrf().disable()
@@ -55,9 +64,13 @@ public class SecurityConfig {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                 .authorizeRequests()
-                    .antMatchers("/", "/api/v1/auth/**").permitAll()
-                .anyRequest()
-                .authenticated();
+                    .antMatchers("/actuator", "/actuator/**").hasAnyRole("ADMIN")
+                    .antMatchers("/api/v1/auth/**").permitAll()
+                    .antMatchers(WHITELISTED_REACT_ENDPOINTS).permitAll()
+                    .antMatchers(WHITELISTED_RESOURCE_ENDPOINTS).permitAll()
+                    .anyRequest().authenticated()
+                    .and()
+                .formLogin().loginPage("/login");
 
         return http.build();
     }
@@ -66,6 +79,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager() throws Exception {
         return authConfig.getAuthenticationManager();
     }
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
