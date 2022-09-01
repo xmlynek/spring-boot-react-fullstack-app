@@ -9,6 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class RoleService {
@@ -50,6 +54,15 @@ public class RoleService {
     @Transactional(readOnly = true)
     public Boolean existsByName(RoleName roleName) {
         return roleRepository.existsByName(roleName);
+    }
+
+    @Transactional
+    public Set<Role> getIfExistsByNameOrCreateRoles(RoleName... roleNames) {
+        return Arrays.stream(roleNames)
+                .map(roleName -> existsByName(roleName)
+                        ? findRoleByName(roleName)
+                        : createRole(roleName))
+                .collect(Collectors.toSet());
     }
 
 }

@@ -13,12 +13,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class RoleServiceTest {
@@ -129,5 +131,30 @@ class RoleServiceTest {
 
         assertThat(response).isFalse();
         verify(roleRepository, times(1)).existsByName(roleName);
+    }
+
+    @Test
+    void shouldGetIfExistsByNameOrCreateRoles() {
+        RoleName userRoleName = RoleName.ROLE_USER;
+        RoleName adminRoleName = RoleName.ROLE_ADMIN;
+        Role userRole = new Role(10L, userRoleName, new HashSet<>());
+        Role adminRole = this.role;
+
+        given(roleRepository.existsByName(userRoleName)).willReturn(true);
+        given(roleRepository.existsByName(adminRoleName)).willReturn(false);
+        given(roleRepository.findByName(userRoleName)).willReturn(Optional.of(userRole));
+        given(roleRepository.save(any())).willReturn(adminRole);
+
+        Set<Role> roles = roleService.getIfExistsByNameOrCreateRoles(userRoleName, adminRoleName);
+
+        verify(roleRepository, times(3)).existsByName(any());
+        verify(roleRepository, times(1)).existsByName(userRoleName);
+        verify(roleRepository, times(2)).existsByName(adminRoleName);
+        verify(roleRepository, times(1)).findByName(userRoleName);
+        verify(roleRepository, times(1)).save(any());
+
+        assertThat(roles).isNotEmpty();
+        assertThat(roles.size()).isEqualTo(2);
+        assertThat(roles).isEqualTo(Set.of(userRole, adminRole));
     }
 }
