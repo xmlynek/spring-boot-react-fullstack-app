@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 
 const UserForm = (props) => {
   const [form] = Form.useForm();
-  let initialValues = {};
+  let initialValues = { isEnabled: false };
 
   if (props.userData) {
     initialValues = {
@@ -14,12 +14,12 @@ const UserForm = (props) => {
       email: props.userData.email,
       gender: props.userData.gender,
       birthDate: moment(props.userData.birthDate, 'YYYY-MM-DD'),
-      isEnabled: props.userData.isEnabled,
+      isEnabled: props.userData.isEnabled ? props.userData.isEnabled : false,
       roles: props.userData.roles
     };
   }
 
-  if (props.userRolesField && !props.userData) {
+  if (props.userRolesField && (!props.userData || props.userData.roles.length === 0)) {
     initialValues.roles = ['ROLE_USER'];
   }
 
@@ -36,6 +36,9 @@ const UserForm = (props) => {
         initialValues={initialValues}
         className="login-form"
         onFinish={(values) => {
+          if (props.userData) {
+            values.birthDate = values.birthDate._i;
+          }
           props.onSubmit(values);
         }}>
         <Form.Item
@@ -127,11 +130,8 @@ const UserForm = (props) => {
           <DatePicker style={{ width: '100%' }} name="birthDate" />
         </Form.Item>
         {props.isEnabledField && (
-          <Form.Item label="isEnabled" name="isEnabled">
-            <Checkbox
-              name="isEnabled"
-              checked={initialValues.isEnabled ? initialValues.isEnabled : false}
-            />
+          <Form.Item label="isEnabled" name="isEnabled" valuePropName="checked">
+            <Checkbox name="isEnabled" />
           </Form.Item>
         )}
         {props.userRolesField && (

@@ -14,8 +14,8 @@ const UsersContext = React.createContext({
 export const UsersContextProvider = (props) => {
   const [userList, setUserList] = useState([]);
 
-  const fetchUsersHandler = () => {
-    axios
+  const fetchUsersHandler = async () => {
+    await axios
       .get('/api/v1/users')
       .then((res) => setUserList(() => res.data))
       .catch((err) =>
@@ -26,8 +26,8 @@ export const UsersContextProvider = (props) => {
       );
   };
 
-  const getUserByIdHandler = (userId) => {
-    axios
+  const getUserByIdHandler = async (userId) => {
+    await axios
       .get(`/api/v1/users/${userId}`)
       .then((res) => setUserList(() => [res.data]))
       .catch((err) =>
@@ -38,8 +38,8 @@ export const UsersContextProvider = (props) => {
       );
   };
 
-  const deleteUserHandler = (userId) => {
-    axios
+  const deleteUserHandler = async (userId) => {
+    await axios
       .delete(`/api/v1/users/${userId}`)
       .then(() => {
         successNotification('Delete success', 'User was successfully deleted');
@@ -52,8 +52,8 @@ export const UsersContextProvider = (props) => {
       );
   };
 
-  const createUserHandler = (userData) => {
-    axios
+  const createUserHandler = async (userData) => {
+    await axios
       .post(`/api/v1/users`, userData)
       .then(() => successNotification('Create user success', 'User was successfully created'))
       .catch((err) =>
@@ -64,8 +64,8 @@ export const UsersContextProvider = (props) => {
       );
   };
 
-  const updateUserHandler = (userId, userData) => {
-    axios
+  const updateUserHandler = async (userId, userData) => {
+    await axios
       .put(`/api/v1/users/${userId}`, userData)
       .then(() => successNotification('Update user success', 'User was successfully updated'))
       .catch((err) =>

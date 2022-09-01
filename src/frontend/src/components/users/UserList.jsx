@@ -20,20 +20,20 @@ const UserList = () => {
     fetchUsers();
   }, []);
 
-  const onDeleteConfirmHandler = (userId) => {
-    deleteUser(userId);
+  const onDeleteConfirmHandler = async (userId) => {
+    await deleteUser(userId);
     fetchUsers();
   };
 
-  const onCreateConfirmHandler = (userData) => {
-    createUser(userData);
-    fetchUsers();
+  const onCreateConfirmHandler = async (userData) => {
+    await createUser(userData);
+    await fetchUsers();
     setIsModalVisible({ isVisible: false });
   };
 
-  const onUpdateConfirmHandler = (userId, userData) => {
-    updateUser(userId, userData);
-    fetchUsers();
+  const onUpdateConfirmHandler = async (userId, userData) => {
+    await updateUser(userId, userData);
+    await fetchUsers();
     setIsModalVisible({ isVisible: false });
   };
 
