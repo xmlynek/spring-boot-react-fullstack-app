@@ -7,6 +7,7 @@ import com.filip.managementapp.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -33,11 +34,12 @@ public class SecurityConfig {
     public static final String[] WHITELISTED_RESOURCE_ENDPOINTS = {
             "/resources/**", "/static/**", "/css/**", "/js/**", "/images/**",
             "/resources/static/**", "/css/**", "/js/**", "/img/**", "/fonts/**",
-            "/images/**", "/scss/**", "/vendor/**", "/favicon.ico", "/favicon.png"
+            "/images/**", "/scss/**", "/vendor/**", "/favicon.ico", "/favicon.png",
+            "/manifest.json"
     };
 
     public static final String[] WHITELISTED_REACT_ENDPOINTS = {
-            "/", "/home*", "/login*", "/register*", "/profile*"
+            "/", "/home*", "/login*", "/register*", "/profile*", "/users*", "/users/*", "/profile*"
     };
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -65,6 +67,7 @@ public class SecurityConfig {
                     .and()
                 .authorizeRequests()
                     .antMatchers("/actuator", "/actuator/**").hasAnyRole("ADMIN")
+                    .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .antMatchers("/api/v1/auth/**").permitAll()
                     .antMatchers(WHITELISTED_REACT_ENDPOINTS).permitAll()
                     .antMatchers(WHITELISTED_RESOURCE_ENDPOINTS).permitAll()

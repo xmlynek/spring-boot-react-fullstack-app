@@ -18,7 +18,7 @@ const UserByIdPage = () => {
   const userId = params.userId;
 
   useEffect(() => {
-    if (currentUser && currentUser.id === userId) {
+    if (currentUser && currentUser.id == userId) {
       navigate('/profile', { replace: true });
     } else {
       getUserById(userId);
