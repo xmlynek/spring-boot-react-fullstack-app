@@ -17,7 +17,7 @@
         <java.version>17</java.version>
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <node.version>v16.10.0</node.version>
-        <npm.version>v8.12.1</npm.version>
+        <npm.version>latest</npm.version>
         <app.image.name>spring-react-fullstack-app</app.image.name>
         <app.image.tag>0.0.1</app.image.tag>
     </properties>
