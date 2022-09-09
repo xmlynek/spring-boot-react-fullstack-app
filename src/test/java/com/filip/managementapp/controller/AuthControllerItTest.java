@@ -1,6 +1,7 @@
 package com.filip.managementapp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.filip.managementapp.AbstractControllerITest;
 import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRegistrationRequest;
 import com.filip.managementapp.dto.UsernamePasswordAuthRequest;
@@ -12,11 +13,8 @@ import com.filip.managementapp.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,14 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
-@TestPropertySource(
-        locations = "classpath:application-test.properties"
-)
-@AutoConfigureMockMvc
-public class AuthControllerItTest {
+
+public class AuthControllerItTest extends AbstractControllerITest {
 
     private final String API_AUTH_URL = "/api/v1/auth";
 
