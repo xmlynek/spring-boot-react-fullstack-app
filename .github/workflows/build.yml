@@ -20,5 +20,5 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
       - name: Mvn clean package
-        run: mvn --batch-mode --update-snapshots --no-transfer-progress clean package -P build-frontend
+        run: mvn --no-transfer-progress clean package -P build-frontend
 
