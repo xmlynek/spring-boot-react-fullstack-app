@@ -1,14 +1,14 @@
 package com.filip.managementapp.dto;
 
 import com.filip.managementapp.model.Gender;
+import com.filip.managementapp.model.RoleName;
 import com.filip.managementapp.validation.IsEnumValue;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.List;
 
 public record UserRequest(
         @NotBlank(message = "Firstname is required")
@@ -28,8 +28,12 @@ public record UserRequest(
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         @NotNull(message = "Birth date is required")
         LocalDate birthDate,
-        @NotNull
-        boolean isEnabled
+        @NotNull(message = "isEnabled is required")
+        Boolean isEnabled,
+
+        @NotEmpty(message = "Roles are required")
+        @Valid
+        List<RoleName> roles
 ) {
 
 }

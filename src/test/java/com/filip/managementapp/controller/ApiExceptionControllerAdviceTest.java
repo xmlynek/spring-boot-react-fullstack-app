@@ -6,6 +6,8 @@ import com.filip.managementapp.exception.ResourceAlreadyExistsException;
 import com.filip.managementapp.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -34,6 +36,22 @@ class ApiExceptionControllerAdviceTest {
         assertThat(responseBody.httpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(responseBody.message()).isEqualTo(message);
         assertThat(responseBody.exception()).isEqualTo(authenticationException.getClass().getName());
+    }
+
+    @Test
+    void handleHttpMessageNotReadableException() {
+        String message = "JSON Parser exception...";
+        HttpMessageNotReadableException exception =
+                new HttpMessageNotReadableException(message, new MockHttpInputMessage("body".getBytes()));
+
+        var response = apiExceptionControllerAdvice.handleHttpMessageNotReadableException(exception);
+        ApiExceptionResponse responseBody = (ApiExceptionResponse) response.getBody();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.httpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseBody.message()).isEqualTo(message);
+        assertThat(responseBody.exception()).isEqualTo(exception.getClass().getName());
     }
 
     @Test

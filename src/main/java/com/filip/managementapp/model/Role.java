@@ -28,6 +28,10 @@ public class Role {
     @ToString.Exclude
     private Set<User> users = new HashSet<>();
 
+    public Role(RoleName name) {
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

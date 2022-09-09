@@ -3,6 +3,7 @@ import { useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useAxiosRequest, { State } from '../../hooks/useAxiosRequest';
 import AuthContext from '../../store/auth-context';
+import ProtectedComponent from '../auth/ProtectedComponent';
 import { errorNotification, successNotification } from '../UI/Notification';
 import classes from './MainNavigation.module.css';
 
@@ -31,6 +32,14 @@ const MainNavigation = () => {
           <span className="nav-text h6">Homepage</span>
         </Link>
       </Menu.Item>
+
+      <ProtectedComponent allowedRoles={['ROLE_ADMIN']}>
+        <Menu.Item key={'users'}>
+          <Link to={'/users'} className="text-decoration-none">
+            <span className="nav-text h6">Users</span>
+          </Link>
+        </Menu.Item>
+      </ProtectedComponent>
 
       <Menu.Item key={'login'} className={classes.separateMenuItems}>
         <Link to={currentUser ? 'profile' : 'login'} className="text-decoration-none">

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,6 +26,11 @@ public class ApiExceptionControllerAdvice {
     public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String message = e.getAllErrors().get(0).getDefaultMessage();
         return logAndCreateResponseEntity(message, HttpStatus.BAD_REQUEST, e.getClass().getName());
+    }
+
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    public ResponseEntity<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        return logAndCreateResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST, e.getClass().getName());
     }
 
     @ExceptionHandler(value = AuthenticationException.class)
