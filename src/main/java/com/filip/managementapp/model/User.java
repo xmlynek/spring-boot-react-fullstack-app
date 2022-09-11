@@ -46,7 +46,8 @@ public class User implements Serializable {
     @Column(nullable = false)
     private LocalDate birthDate;
 
-    private boolean isEnabled;
+    @Column(nullable = false)
+    private Boolean isEnabled;
 
     @ManyToMany(
             fetch = FetchType.EAGER,

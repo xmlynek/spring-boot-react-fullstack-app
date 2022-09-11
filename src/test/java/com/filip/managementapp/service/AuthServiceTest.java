@@ -1,9 +1,9 @@
 package com.filip.managementapp.service;
 
-import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRegistrationRequest;
 import com.filip.managementapp.dto.UsernamePasswordAuthRequest;
 import com.filip.managementapp.exception.ResourceAlreadyExistsException;
+import com.filip.managementapp.mapper.UserMapper;
 import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.Role;
 import com.filip.managementapp.model.RoleName;
@@ -14,8 +14,10 @@ import com.filip.managementapp.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,6 +55,9 @@ class AuthServiceTest {
     @Mock
     private SecurityUtils securityUtils;
 
+    @Spy
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+
     @InjectMocks
     private AuthService authService;
 
@@ -89,7 +94,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository, roleService, passwordEncoder, authenticationManager, securityUtils);
+        authService = new AuthService(userRepository, roleService, passwordEncoder, authenticationManager, securityUtils, userMapper);
     }
 
     @Test
@@ -112,7 +117,7 @@ class AuthServiceTest {
         var headers = response.getHeaders();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo(UserDto.map(this.user));
+        assertThat(response.getBody()).isEqualTo(userMapper.userToUserDto(this.user));
         assertThat(headers.getFirst(HttpHeaders.SET_COOKIE)).isEqualTo(responseCookie.toString());
 
         verify(authenticationManager, times(1)).authenticate(usernamePasswordAuthenticationToken);

@@ -6,6 +6,7 @@ import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRequest;
 import com.filip.managementapp.exception.ResourceAlreadyExistsException;
 import com.filip.managementapp.exception.ResourceNotFoundException;
+import com.filip.managementapp.mapper.UserMapper;
 import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.Role;
 import com.filip.managementapp.model.RoleName;
@@ -14,6 +15,7 @@ import com.filip.managementapp.repository.RoleRepository;
 import com.filip.managementapp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -49,6 +51,9 @@ class UserControllerITest extends AbstractControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+
     private final User user;
 
     public UserControllerITest() {
@@ -80,7 +85,7 @@ class UserControllerITest extends AbstractControllerITest {
                 .andReturn();
 
         assertThat(objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class))
-                .isEqualTo(UserDto.map(savedUser));
+                .isEqualTo(userMapper.userToUserDto(savedUser));
     }
 
     @Test
@@ -130,7 +135,7 @@ class UserControllerITest extends AbstractControllerITest {
                 .andReturn().getResponse();
 
         assertThat(objectMapper.readValue(response.getContentAsString(), UserDto[].class))
-                .isEqualTo(savedUsers.stream().map(UserDto::map).toArray());
+                .isEqualTo(savedUsers.stream().map(userMapper::userToUserDto).toArray());
     }
 
     @Test
@@ -164,7 +169,7 @@ class UserControllerITest extends AbstractControllerITest {
                 .andReturn();
 
         assertThat(objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class))
-                .isEqualTo(UserDto.map(savedUser));
+                .isEqualTo(userMapper.userToUserDto(savedUser));
     }
 
     @Test
@@ -219,7 +224,7 @@ class UserControllerITest extends AbstractControllerITest {
 
         assertThat(createdUserResponse).isNotNull();
         assertThat(userList).hasSize(1);
-        assertThat(createdUserResponse).isEqualTo(UserDto.map(userList.get(0)));
+        assertThat(createdUserResponse).isEqualTo(userMapper.userToUserDto(userList.get(0)));
     }
 
     @Test
@@ -332,7 +337,7 @@ class UserControllerITest extends AbstractControllerITest {
         assertThat(foundedOriginalUser).isEmpty();
         assertThat(foundedUpdatedUser).isPresent();
         assertThat(objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class))
-                .isEqualTo(UserDto.map(foundedUpdatedUser.get()));
+                .isEqualTo(userMapper.userToUserDto(foundedUpdatedUser.get()));
     }
 
     @Test
