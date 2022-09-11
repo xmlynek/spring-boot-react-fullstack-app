@@ -31,14 +31,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    public static final String[] WHITELISTED_RESOURCE_ENDPOINTS = {
+    protected static final String[] WHITELISTED_RESOURCE_ENDPOINTS = {
             "/resources/**", "/static/**", "/css/**", "/js/**", "/images/**",
             "/resources/static/**", "/css/**", "/js/**", "/img/**", "/fonts/**",
             "/images/**", "/scss/**", "/vendor/**", "/favicon.ico", "/favicon.png",
             "/manifest.json"
     };
 
-    public static final String[] WHITELISTED_REACT_ENDPOINTS = {
+    protected static final String[] WHITELISTED_REACT_ENDPOINTS = {
             "/", "/home*", "/login*", "/register*", "/profile*", "/users*", "/users/*", "/profile*"
     };
 

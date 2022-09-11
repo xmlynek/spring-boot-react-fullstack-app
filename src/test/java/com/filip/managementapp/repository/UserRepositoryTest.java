@@ -50,8 +50,9 @@ class UserRepositoryTest extends AbstractRepositoryTest {
         User savedUser = userRepository.save(user);
         Optional<User> foundedUser = userRepository.findByEmail(savedUser.getEmail());
 
-        assertThat(foundedUser).isPresent();
-        assertThat(foundedUser.get()).isEqualTo(savedUser);
+        assertThat(foundedUser)
+                .isPresent()
+                .contains(savedUser);
     }
 
     @Test
@@ -73,7 +74,7 @@ class UserRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void shouldNotExistsByEmail() {
-        User savedUser = userRepository.save(user);
+        userRepository.save(user);
 
         Boolean result = userRepository.existsByEmail("randomEmail123@email.com");
 

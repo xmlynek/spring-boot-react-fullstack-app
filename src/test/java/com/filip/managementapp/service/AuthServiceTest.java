@@ -187,7 +187,7 @@ class AuthServiceTest {
         var response = authService.logout();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo(null);
+        assertThat(response.getBody()).isNull();
         assertThat(response.getHeaders().getFirst(HttpHeaders.SET_COOKIE)).isEqualTo(responseCookie.toString());
 
         verify(securityUtils, times(1)).deleteJwtCookie();

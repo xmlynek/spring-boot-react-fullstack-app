@@ -33,7 +33,7 @@ public class ReactResourceResolver implements ResourceResolver {
                                     List<? extends Resource> locations,
                                     ResourceResolverChain chain) {
 
-        return resolve(requestPath, locations);
+        return resolve(requestPath);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ReactResourceResolver implements ResourceResolver {
                                  List<? extends Resource> locations,
                                  ResourceResolverChain chain) {
 
-        Resource resolvedResource = resolve(resourcePath, locations);
+        Resource resolvedResource = resolve(resourcePath);
         if (resolvedResource == null) {
             return null;
         }
@@ -52,7 +52,7 @@ public class ReactResourceResolver implements ResourceResolver {
         }
     }
 
-    private Resource resolve(String requestPath, List<? extends Resource> locations) {
+    private Resource resolve(String requestPath) {
 
         if (requestPath == null) return null;
 

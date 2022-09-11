@@ -52,7 +52,7 @@ public class RoleService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean existsByName(RoleName roleName) {
+    public boolean existsByName(RoleName roleName) {
         return roleRepository.existsByName(roleName);
     }
 

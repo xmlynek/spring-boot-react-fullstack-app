@@ -34,7 +34,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final SecurityUtils securityUtils;
 
-    public ResponseEntity<?> login(UsernamePasswordAuthRequest authRequest) {
+    public ResponseEntity<Object> login(UsernamePasswordAuthRequest authRequest) {
         Authentication authentication = authenticationManager
                 .authenticate(
                         new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password())
@@ -51,7 +51,7 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity<?> registerUser(UserRegistrationRequest userRegistrationRequest) {
+    public ResponseEntity<Object> registerUser(UserRegistrationRequest userRegistrationRequest) {
         if (userRepository.existsByEmail(userRegistrationRequest.email())) {
             throw new ResourceAlreadyExistsException("User with given email already exists");
         }
@@ -76,7 +76,7 @@ public class AuthService {
         return ResponseEntity.ok().body("Registration was successful. Now log in.");
     }
 
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<Object> logout() {
         ResponseCookie jwtCookie = securityUtils.deleteJwtCookie();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())

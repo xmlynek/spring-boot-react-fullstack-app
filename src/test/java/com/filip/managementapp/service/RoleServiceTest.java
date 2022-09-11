@@ -153,8 +153,9 @@ class RoleServiceTest {
         verify(roleRepository, times(1)).findByName(userRoleName);
         verify(roleRepository, times(1)).save(any());
 
-        assertThat(roles).isNotEmpty();
-        assertThat(roles.size()).isEqualTo(2);
-        assertThat(roles).isEqualTo(Set.of(userRole, adminRole));
+        assertThat(roles)
+                .isNotEmpty()
+                .hasSize(2)
+                .isEqualTo(Set.of(userRole, adminRole));
     }
 }

@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-public class AuthControllerItTest extends AbstractControllerITest {
+class AuthControllerItTest extends AbstractControllerITest {
 
     private final String API_AUTH_URL = "/api/v1/auth";
 
@@ -101,7 +101,7 @@ public class AuthControllerItTest extends AbstractControllerITest {
         var user = userRepository.findByEmail(this.registrationRequest.email());
 
         resultActions.andExpect(status().isBadRequest());
-        assertThat(users.size()).isEqualTo(1);
+        assertThat(users).hasSize(1);
         assertThat(user).isNotEmpty();
         assertThat(user.get().getFirstName()).isEqualTo(this.userModel.getFirstName());
     }
@@ -140,7 +140,7 @@ public class AuthControllerItTest extends AbstractControllerITest {
 
 
         var users = userRepository.findAll();
-        assertThat(users.size()).isEqualTo(0);
+        assertThat(users).isEmpty();
         assertThat(result.getResponse().getStatus()).isEqualTo(400);
         assertThat(result.getResponse().getContentAsString()).contains("Invalid gender type");
         assertTrue(result.getResolvedException() instanceof MethodArgumentNotValidException);
