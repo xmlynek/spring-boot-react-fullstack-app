@@ -37,8 +37,9 @@ class RoleRepositoryTest extends AbstractRepositoryTest {
 
         Optional<Role> foundedRole = roleRepository.findByName(savedRole.getName());
 
-        assertThat(foundedRole).isPresent();
-        assertThat(foundedRole.get()).isEqualTo(savedRole);
+        assertThat(foundedRole)
+                .isPresent()
+                .contains(savedRole);
     }
 
     @Test

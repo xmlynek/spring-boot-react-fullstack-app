@@ -19,18 +19,18 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid UsernamePasswordAuthRequest authRequest) {
+    public ResponseEntity<Object> login(@RequestBody @Valid UsernamePasswordAuthRequest authRequest) {
         return authService.login(authRequest);
     }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> register(@RequestBody @Valid UserRegistrationRequest userRegistrationRequest) {
+    public ResponseEntity<Object> register(@RequestBody @Valid UserRegistrationRequest userRegistrationRequest) {
         return authService.registerUser(userRegistrationRequest);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<Object> logout() {
         return authService.logout();
     }
 }

@@ -127,8 +127,9 @@ class UserServiceTest {
 
         List<UserDto> userDtos = userService.findAllUsers();
 
-        assertThat(userDtos.size()).isEqualTo(users.size());
-        assertThat(userDtos).isEqualTo(expectedUserDtosList);
+        assertThat(userDtos)
+                .hasSize(users.size())
+                .isEqualTo(expectedUserDtosList);
         verify(userRepository, times(1)).findAll();
     }
 
@@ -149,8 +150,9 @@ class UserServiceTest {
 
         UserDto userDto = userService.findUserById(userId);
 
-        assertThat(userDto).isNotNull();
-        assertThat(userDto).isEqualTo(UserDto.map(user));
+        assertThat(userDto)
+                .isNotNull()
+                .isEqualTo(UserDto.map(user));
         verify(userRepository, times(1)).findById(userId);
     }
 
@@ -188,8 +190,9 @@ class UserServiceTest {
 
         UserDto createdUserDto = userService.createUser(userRequest);
 
-        assertThat(createdUserDto).isNotNull();
-        assertThat(createdUserDto).isEqualTo(UserDto.map(user));
+        assertThat(createdUserDto)
+                .isNotNull()
+                .isEqualTo(UserDto.map(user));
         verify(userRepository, times(1)).existsByEmail(email);
         verify(userRepository, times(1)).save(any());
         verify(passwordEncoder, times(1)).encode(userRequest.password());
@@ -253,8 +256,9 @@ class UserServiceTest {
 
         UserDto updatedUser = userService.updateUser(userId, userDtoRequest);
 
-        assertThat(updatedUser).isNotNull();
-        assertThat(updatedUser).isEqualTo(UserDto.map(expectedUpdatedUser));
+        assertThat(updatedUser)
+                .isNotNull()
+                .isEqualTo(UserDto.map(expectedUpdatedUser));
         verify(userRepository, times(1)).findById(userId);
         verify(roleService, times(1))
                 .getIfExistsByNameOrCreateRoles(any());

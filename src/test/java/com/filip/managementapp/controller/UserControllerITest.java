@@ -139,7 +139,7 @@ class UserControllerITest extends AbstractControllerITest {
         var response = mockMvc.perform(get(API_USERS_URL))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
-        assertThat(objectMapper.readValue(response.getContentAsString(), UserDto[].class)).hasSize(0);
+        assertThat(objectMapper.readValue(response.getContentAsString(), UserDto[].class)).isEmpty();
         assertThat(response.getContentAsString()).isEqualTo("[]");
     }
 
@@ -218,7 +218,7 @@ class UserControllerITest extends AbstractControllerITest {
         List<User> userList = userRepository.findAll();
 
         assertThat(createdUserResponse).isNotNull();
-        assertThat(userList.size()).isEqualTo(1);
+        assertThat(userList).hasSize(1);
         assertThat(createdUserResponse).isEqualTo(UserDto.map(userList.get(0)));
     }
 
@@ -457,7 +457,7 @@ class UserControllerITest extends AbstractControllerITest {
         List<User> users = userRepository.findAll();
         Optional<User> foundedUser = userRepository.findById(savedUser.getId());
 
-        assertThat(users.size()).isEqualTo(1);
+        assertThat(users).hasSize(1);
         assertThat(foundedUser).isPresent();
         assertTrue(result.getResolvedException() instanceof ResourceNotFoundException);
         assertThat(result.getResolvedException().getMessage())
@@ -476,7 +476,7 @@ class UserControllerITest extends AbstractControllerITest {
         List<User> users = userRepository.findAll();
         Optional<User> foundedUser = userRepository.findById(savedUser.getId());
 
-        assertThat(users.size()).isEqualTo(1);
+        assertThat(users).hasSize(1);
         assertThat(foundedUser).isPresent();
     }
 
@@ -491,7 +491,7 @@ class UserControllerITest extends AbstractControllerITest {
         List<User> users = userRepository.findAll();
         Optional<User> foundedUser = userRepository.findById(savedUser.getId());
 
-        assertThat(users.size()).isEqualTo(1);
+        assertThat(users).hasSize(1);
         assertThat(foundedUser).isPresent();
     }
 }

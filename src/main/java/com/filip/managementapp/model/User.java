@@ -3,6 +3,8 @@ package com.filip.managementapp.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
@@ -16,7 +18,10 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-public class User {
+public class User implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 123432432423312L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

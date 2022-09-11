@@ -60,9 +60,10 @@ class MyUserDetailsServiceTest {
 
     @Test
     void loadUserByUsernameWillThrowException() {
+        String userEmail = user.getEmail();
         given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> myUserDetailsService.loadUserByUsername(user.getEmail()))
+        assertThatThrownBy(() -> myUserDetailsService.loadUserByUsername(userEmail))
                 .isInstanceOf(UsernameNotFoundException.class)
                 .hasMessage(String.format("User with email '%s' not found", user.getEmail()));
 

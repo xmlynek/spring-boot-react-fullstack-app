@@ -18,11 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    private static final String USER_BY_ID_NOT_FOUND_STRING = "User with id %d not found";
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -42,13 +44,13 @@ public class UserService {
         return userRepository.findAll()
                 .stream()
                 .map(UserDto::map)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public UserDto findUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("User with id %d not found", id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_BY_ID_NOT_FOUND_STRING, id)));
         return UserDto.map(user);
     }
 
@@ -77,7 +79,7 @@ public class UserService {
     @Transactional
     public UserDto updateUser(Long id, UserDto userDtoRequest) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("User with id %d not found", id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_BY_ID_NOT_FOUND_STRING, id)));
 
         Set<Role> roles = roleService.getIfExistsByNameOrCreateRoles(
                 userDtoRequest.roles().stream().map(RoleName::valueOf).toArray(RoleName[]::new)
@@ -98,7 +100,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format("User with id %d not found", id)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_BY_ID_NOT_FOUND_STRING, id)));
         userRepository.delete(user);
     }
 
