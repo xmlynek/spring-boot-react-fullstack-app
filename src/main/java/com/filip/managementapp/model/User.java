@@ -84,7 +84,7 @@ public class User implements Serializable {
         result = 31 * result + password.hashCode();
         result = 31 * result + gender.hashCode();
         result = 31 * result + birthDate.hashCode();
-        result = 31 * result + (isEnabled ? 1 : 0);
+        result = 31 * result + (Boolean.TRUE.equals(isEnabled) ? 1 : 0);
         return result;
     }
 }
