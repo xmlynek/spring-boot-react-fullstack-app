@@ -2,16 +2,17 @@ package com.filip.managementapp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.filip.managementapp.AbstractControllerITest;
-import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRegistrationRequest;
 import com.filip.managementapp.dto.UsernamePasswordAuthRequest;
 import com.filip.managementapp.exception.ResourceAlreadyExistsException;
+import com.filip.managementapp.mapper.UserMapper;
 import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.User;
 import com.filip.managementapp.repository.UserRepository;
 import com.filip.managementapp.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -41,6 +42,8 @@ class AuthControllerItTest extends AbstractControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @Autowired
     private SecurityUtils securityUtils;
@@ -161,7 +164,7 @@ class AuthControllerItTest extends AbstractControllerITest {
                 .andExpect(cookie().httpOnly(securityUtils.getJwtCookieName(), true))
                 .andExpect(cookie().path(securityUtils.getJwtCookieName(), "/"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json(objectMapper.writeValueAsString(UserDto.map(savedUser))));
+                .andExpect(content().json(objectMapper.writeValueAsString(userMapper.userToUserDto(savedUser))));
     }
 
     @Test

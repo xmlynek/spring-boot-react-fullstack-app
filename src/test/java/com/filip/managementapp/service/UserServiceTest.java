@@ -4,6 +4,7 @@ import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRequest;
 import com.filip.managementapp.exception.ResourceAlreadyExistsException;
 import com.filip.managementapp.exception.ResourceNotFoundException;
+import com.filip.managementapp.mapper.UserMapper;
 import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.Role;
 import com.filip.managementapp.model.RoleName;
@@ -13,9 +14,11 @@ import org.apache.catalina.realm.GenericPrincipal;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,6 +43,8 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private RoleService roleService;
+    @Spy
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
     @InjectMocks
     private UserService userService;
     private final User user;
@@ -69,7 +74,7 @@ class UserServiceTest {
 
         var response = userService.getCurrentlyLoggedUser(principal);
 
-        assertThat(response).isEqualTo(UserDto.map(user));
+        assertThat(response).isEqualTo(userMapper.userToUserDto(user));
         verify(userRepository, times(1)).findByEmail(email);
     }
 
@@ -121,7 +126,7 @@ class UserServiceTest {
                         Set.of(new Role(2L, RoleName.ROLE_USER, new HashSet<>()))
                 )
         );
-        List<UserDto> expectedUserDtosList = users.stream().map(UserDto::map).toList();
+        List<UserDto> expectedUserDtosList = users.stream().map(userMapper::userToUserDto).toList();
 
         given(userRepository.findAll()).willReturn(users);
 
@@ -152,7 +157,7 @@ class UserServiceTest {
 
         assertThat(userDto)
                 .isNotNull()
-                .isEqualTo(UserDto.map(user));
+                .isEqualTo(userMapper.userToUserDto(user));
         verify(userRepository, times(1)).findById(userId);
     }
 
@@ -192,7 +197,7 @@ class UserServiceTest {
 
         assertThat(createdUserDto)
                 .isNotNull()
-                .isEqualTo(UserDto.map(user));
+                .isEqualTo(userMapper.userToUserDto(user));
         verify(userRepository, times(1)).existsByEmail(email);
         verify(userRepository, times(1)).save(any());
         verify(passwordEncoder, times(1)).encode(userRequest.password());
@@ -258,7 +263,7 @@ class UserServiceTest {
 
         assertThat(updatedUser)
                 .isNotNull()
-                .isEqualTo(UserDto.map(expectedUpdatedUser));
+                .isEqualTo(userMapper.userToUserDto(expectedUpdatedUser));
         verify(userRepository, times(1)).findById(userId);
         verify(roleService, times(1))
                 .getIfExistsByNameOrCreateRoles(any());

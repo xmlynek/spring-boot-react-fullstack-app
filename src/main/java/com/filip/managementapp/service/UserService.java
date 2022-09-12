@@ -4,6 +4,7 @@ import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRequest;
 import com.filip.managementapp.exception.ResourceAlreadyExistsException;
 import com.filip.managementapp.exception.ResourceNotFoundException;
+import com.filip.managementapp.mapper.UserMapper;
 import com.filip.managementapp.model.Gender;
 import com.filip.managementapp.model.Role;
 import com.filip.managementapp.model.RoleName;
@@ -27,7 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final UserMapper userMapper;
     private final RoleService roleService;
 
     @Transactional(readOnly = true)
@@ -35,7 +36,7 @@ public class UserService {
         if (principal == null) {
             throw new AuthenticationCredentialsNotFoundException("Unauthorized");
         }
-        return UserDto.map(userRepository.findByEmail(principal.getName())
+        return userMapper.userToUserDto(userRepository.findByEmail(principal.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found")));
     }
 
@@ -43,7 +44,7 @@ public class UserService {
     public List<UserDto> findAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(UserDto::map)
+                .map(userMapper::userToUserDto)
                 .toList();
     }
 
@@ -51,7 +52,7 @@ public class UserService {
     public UserDto findUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_BY_ID_NOT_FOUND_STRING, id)));
-        return UserDto.map(user);
+        return userMapper.userToUserDto(user);
     }
 
     @Transactional
@@ -62,18 +63,11 @@ public class UserService {
 
         Set<Role> roles = roleService.getIfExistsByNameOrCreateRoles(userRequest.roles().toArray(RoleName[]::new));
 
-        User createdUser = User.builder()
-                .firstName(userRequest.firstName())
-                .lastName(userRequest.lastName())
-                .email(userRequest.email())
-                .password(passwordEncoder.encode(userRequest.password()))
-                .gender(Gender.valueOf(userRequest.gender()))
-                .birthDate(userRequest.birthDate())
-                .isEnabled(userRequest.isEnabled())
-                .roles(roles)
-                .build();
+        User user = userMapper.userRequestToUser(userRequest);
+        user.setRoles(roles);
+        user.setPassword(passwordEncoder.encode(userRequest.password()));
 
-        return UserDto.map(userRepository.save(createdUser));
+        return userMapper.userToUserDto(userRepository.save(user));
     }
 
     @Transactional
@@ -90,11 +84,11 @@ public class UserService {
         user.setEmail(userDtoRequest.email());
         user.setGender(Gender.valueOf(userDtoRequest.gender()));
         user.setBirthDate(userDtoRequest.birthDate());
-        user.setEnabled(userDtoRequest.isEnabled());
+        user.setIsEnabled(userDtoRequest.isEnabled());
         user.getRoles().clear();
         user.setRoles(roles);
 
-        return UserDto.map(userRepository.save(user));
+        return userMapper.userToUserDto(userRepository.save(user));
     }
 
     @Transactional

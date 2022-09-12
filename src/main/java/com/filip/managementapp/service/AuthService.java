@@ -1,10 +1,9 @@
 package com.filip.managementapp.service;
 
-import com.filip.managementapp.dto.UserDto;
 import com.filip.managementapp.dto.UserRegistrationRequest;
 import com.filip.managementapp.dto.UsernamePasswordAuthRequest;
 import com.filip.managementapp.exception.ResourceAlreadyExistsException;
-import com.filip.managementapp.model.Gender;
+import com.filip.managementapp.mapper.UserMapper;
 import com.filip.managementapp.model.Role;
 import com.filip.managementapp.model.RoleName;
 import com.filip.managementapp.model.User;
@@ -33,6 +32,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final SecurityUtils securityUtils;
+    private final UserMapper userMapper;
 
     public ResponseEntity<Object> login(UsernamePasswordAuthRequest authRequest) {
         Authentication authentication = authenticationManager
@@ -47,7 +47,7 @@ public class AuthService {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseJwtCookie.toString())
-                .body(UserDto.map(userDetails.getUser()));
+                .body(userMapper.userToUserDto(userDetails.getUser()));
     }
 
     @Transactional
@@ -56,16 +56,10 @@ public class AuthService {
             throw new ResourceAlreadyExistsException("User with given email already exists");
         }
 
-        User user = User.builder()
-                        .firstName(userRegistrationRequest.firstName())
-                        .lastName(userRegistrationRequest.lastName())
-                        .email(userRegistrationRequest.email())
-                        .password(passwordEncoder.encode(userRegistrationRequest.password()))
-                        .gender(Gender.valueOf(userRegistrationRequest.gender()))
-                        .birthDate(userRegistrationRequest.birthDate())
-                        .roles(new HashSet<>())
-                        .isEnabled(true)
-                        .build();
+        User user = userMapper.userRegistrationRequestToUser(userRegistrationRequest);
+        user.setPassword(passwordEncoder.encode(userRegistrationRequest.password()));
+        user.setIsEnabled(true);
+        user.setRoles(new HashSet<>());
 
         Role role = roleService.existsByName(RoleName.ROLE_USER)
                 ? roleService.findRoleByName(RoleName.ROLE_USER)
