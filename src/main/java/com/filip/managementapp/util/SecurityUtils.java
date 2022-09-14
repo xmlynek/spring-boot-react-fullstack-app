@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
@@ -19,14 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @Getter
 public class SecurityUtils {
     private static final Logger logger = LoggerFactory.getLogger(SecurityUtils.class);
-    public static final String CLAIMS_AUTHORITIES_KEY = "authorities";
     private SecretKey secretKey;
     @Value("${application.jwt.secret-key}")
     private String secretKeyString;
@@ -40,23 +36,17 @@ public class SecurityUtils {
         this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes());
     }
 
-    public String generateJwtToken(Authentication auth) {
-        Set<String> authorities = auth.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
-
+    public String generateJwtToken(String email) {
         return Jwts.builder()
-                .setSubject(auth.getName())
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(tokenExpirationAfterDays)))
-                .claim(CLAIMS_AUTHORITIES_KEY, authorities)
                 .signWith(secretKey)
                 .compact();
     }
 
     public ResponseCookie generateJwtCookie(Authentication auth) {
-        String generatedJwt = generateJwtToken(auth);
+        String generatedJwt = generateJwtToken(auth.getName());
         return ResponseCookie
                 .from(jwtCookieName, generatedJwt)
                 .httpOnly(true)
