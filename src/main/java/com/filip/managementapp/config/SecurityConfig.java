@@ -55,7 +55,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(new JwtTokenVerifierFilter(securityUtils), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(
+                        new JwtTokenVerifierFilter(securityUtils, myUserDetailsService),
+                        UsernamePasswordAuthenticationFilter.class
+                )
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
                     .and()
                 .csrf().disable()
