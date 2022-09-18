@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.filip</groupId>
     <artifactId>user-management-app</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>user-management-app</name>
     <description>user-management-app</description>
     <properties>
@@ -19,7 +19,7 @@
         <node.version>v16.10.0</node.version>
         <npm.version>8.12.1</npm.version>
         <app.image.name>spring-react-fullstack-app</app.image.name>
-        <app.image.tag>0.0.1</app.image.tag>
+        <app.image.tag>0.0.2</app.image.tag>
         <org.mapstruct.version>1.5.2.Final</org.mapstruct.version>
         <org.projectlombok.version>1.18.24</org.projectlombok.version>
         <sonar.coverage.exclusions>
