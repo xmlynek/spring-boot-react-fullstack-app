@@ -6,6 +6,7 @@ import ProductForm from '../products/ProductForm';
 import { useEffect, useState } from 'react';
 import { useContext } from 'react';
 import ProductContext from '../../store/products-context';
+import ProtectedComponent from '../auth/ProtectedComponent';
 
 const ProductListPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -30,11 +31,13 @@ const ProductListPage = () => {
         <ProductForm onFinish={onFinishHandler} visible={isModalVisible} />
       </Modal>
       <MainHeading title={`Products`} />
-      <div className="text-center mb-3">
-        <Button size="large" onClick={() => setIsModalVisible(true)}>
-          New product
-        </Button>
-      </div>
+      <ProtectedComponent allowedRoles={['ROLE_ADMIN']}>
+        <div className="text-center mb-3">
+          <Button size="large" onClick={() => setIsModalVisible(true)}>
+            New product
+          </Button>
+        </div>
+      </ProtectedComponent>
       <ProductList productList={productList} />
       <Outlet />
     </>

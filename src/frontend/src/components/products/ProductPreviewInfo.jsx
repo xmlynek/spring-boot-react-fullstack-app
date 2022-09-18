@@ -21,7 +21,15 @@ const ProductPreviewInfo = (props) => {
       product={product}
       onClick={onCardClickHandler}
       hoverable
-      style={{ maxWidth: 320, height: 410, opacity: product.isAvailable ? 1 : 0.75 }}>
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        maxWidth: 320,
+        height: 440,
+        maxHeight: 440,
+        opacity: product.isAvailable ? 1 : 0.75
+      }}>
       <Meta
         title={
           <p className="text-wrap">
@@ -35,7 +43,14 @@ const ProductPreviewInfo = (props) => {
         }
         description={product.shortDescription}
       />
-      <div className="mt-3">
+      <div
+        className="mt-3 d-flex"
+        style={{
+          flexBasis: '100%',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap'
+        }}>
         <p className="float-start h4 mt-2">{product.price}$</p>
         <Button
           className="float-end"
