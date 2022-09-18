@@ -18,8 +18,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private static final String PRODUCT_BY_ID_NOT_FOUND_STRING = "Product with id %d not found";
-    private static final String PRODUCT_WITH_GIVEN_NAME_EXISTS_STRING = "Product with name '%s' already exists";
+    public static final String PRODUCT_BY_ID_NOT_FOUND_STRING = "Product with id %d not found";
+    public static final String PRODUCT_WITH_GIVEN_NAME_EXISTS_STRING = "Product with name '%s' already exists";
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -65,13 +65,10 @@ public class ProductService {
             );
         }
 
-        currentProduct.setDescription(productRequest.description());
-        currentProduct.setName(productRequest.name());
-        currentProduct.setPrice(productRequest.price());
-        currentProduct.setQuantity(productRequest.quantity());
-        currentProduct.setIsAvailable(productRequest.isAvailable());
+        Product productToUpdate = productMapper.productDtoToProduct(productRequest);
+        productToUpdate.setId(currentProduct.getId());
 
-        return productMapper.productToProductDto(productRepository.save(currentProduct));
+        return productMapper.productToProductDto(productRepository.save(productToUpdate));
     }
 
     @Transactional
