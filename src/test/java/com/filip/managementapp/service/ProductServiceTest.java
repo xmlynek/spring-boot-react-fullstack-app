@@ -7,6 +7,7 @@ import com.filip.managementapp.exception.ResourceNotFoundException;
 import com.filip.managementapp.mapper.ImageFileMapperImpl;
 import com.filip.managementapp.mapper.ProductMapper;
 import com.filip.managementapp.mapper.ProductMapperImpl;
+import com.filip.managementapp.model.ImageFile;
 import com.filip.managementapp.model.Product;
 import com.filip.managementapp.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -50,7 +53,12 @@ class ProductServiceTest {
                 "Great monitor using LCD technology",
                 15L,
                 199.50,
-                true
+                true,
+                new ImageFile(
+                        null,
+                        "filename.jpg",
+                        MediaType.IMAGE_JPEG_VALUE,
+                        "DATA".getBytes())
         );
         this.productRequest = new ProductRequest(
                 null,
@@ -103,7 +111,8 @@ class ProductServiceTest {
                 .isNotNull()
                 .isNotEmpty()
                 .hasSize(3)
-                .containsAll(products.stream().map(productMapper::productToProductDto).toList());
+                .usingRecursiveComparison()
+                .isEqualTo(products.stream().map(productMapper::productToProductDto).toList());
         verify(productRepository, times(1)).findAll(isAvailableSort);
     }
 
@@ -133,8 +142,10 @@ class ProductServiceTest {
 
         // then
         verify(productMapper, times(1)).productToProductDto(product);
+        assertArrayEquals(productDto.productImage().data(), product.getProductImage().getData());
         assertThat(productDto)
                 .isNotNull()
+                .usingRecursiveComparison()
                 .isEqualTo(productMapper.productToProductDto(product));
         verify(productRepository, times(1)).findById(productId);
 
