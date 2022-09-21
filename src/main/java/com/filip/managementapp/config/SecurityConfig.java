@@ -39,7 +39,11 @@ public class SecurityConfig {
     };
 
     protected static final String[] WHITELISTED_REACT_ENDPOINTS = {
-            "/", "/home*", "/login*", "/register*", "/profile*", "/users*", "/users/*", "/profile*"
+            "/", "/home*",
+            "/login*", "/register*",
+            "/users*", "/users/**",
+            "/profile*",
+            "/products*", "/products/**"
     };
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
