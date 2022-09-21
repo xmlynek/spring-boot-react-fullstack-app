@@ -39,7 +39,11 @@ public class SecurityConfig {
     };
 
     protected static final String[] WHITELISTED_REACT_ENDPOINTS = {
-            "/", "/home*", "/login*", "/register*", "/profile*", "/users*", "/users/*", "/profile*"
+            "/", "/home*",
+            "/login*", "/register*",
+            "/users*", "/users/**",
+            "/profile*",
+            "/products*", "/products/**"
     };
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -72,6 +76,7 @@ public class SecurityConfig {
                     .antMatchers("/actuator", "/actuator/**").hasAnyRole("ADMIN")
                     .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .antMatchers("/api/v1/auth/**").permitAll()
+                    .antMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                     .antMatchers(WHITELISTED_REACT_ENDPOINTS).permitAll()
                     .antMatchers(WHITELISTED_RESOURCE_ENDPOINTS).permitAll()
                     .anyRequest().authenticated()

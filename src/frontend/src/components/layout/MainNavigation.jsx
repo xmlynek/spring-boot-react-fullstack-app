@@ -33,6 +33,12 @@ const MainNavigation = () => {
         </Link>
       </Menu.Item>
 
+      <Menu.Item key={'products'}>
+        <Link to={'/products'} className="text-decoration-none">
+          <span className="nav-text h6">Products</span>
+        </Link>
+      </Menu.Item>
+
       <ProtectedComponent allowedRoles={['ROLE_ADMIN']}>
         <Menu.Item key={'users'}>
           <Link to={'/users'} className="text-decoration-none">
