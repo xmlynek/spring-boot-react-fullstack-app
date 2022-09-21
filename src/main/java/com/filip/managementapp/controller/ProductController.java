@@ -1,6 +1,7 @@
 package com.filip.managementapp.controller;
 
 import com.filip.managementapp.dto.ProductDto;
+import com.filip.managementapp.dto.ProductRequest;
 import com.filip.managementapp.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,14 +32,14 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductDto saveProduct(@Valid @RequestBody ProductDto productDto) {
-        return productService.saveProduct(productDto);
+    public ProductDto saveProduct(@ModelAttribute @Valid ProductRequest productRequest) {
+        return productService.saveProduct(productRequest);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
-    public ProductDto updateProduct(@PathVariable("id") Long id, @Valid @RequestBody ProductDto productDto) {
-        return productService.updateProduct(id, productDto);
+    public ProductDto updateProduct(@PathVariable("id") Long id, @ModelAttribute @Valid ProductRequest productRequest) {
+        return productService.updateProduct(id, productRequest);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")

@@ -1,9 +1,11 @@
-import { Card, Modal, Popconfirm } from 'antd';
+import { Card, Image, Modal, Popconfirm } from 'antd';
 import { DeleteOutlined, SettingOutlined } from '@ant-design/icons';
 import { useContext, useState } from 'react';
 import ProductContext from '../../store/products-context';
 import ProductForm from './ProductForm';
 import ProtectedComponent from '../auth/ProtectedComponent';
+
+import defaultImage from '../../assets/images/default-image.jpg';
 
 const ProductWrapper = (props) => {
   const { state, deleteProduct, updateProduct } = useContext(ProductContext);
@@ -37,6 +39,7 @@ const ProductWrapper = (props) => {
         <ProductForm
           onFinish={onUpdateSubmitHandler.bind(null, product.id)}
           productData={product}
+          update
           visible={isModalVisible}
           submitBtnTitle={'Save changes'}
         />
@@ -53,9 +56,19 @@ const ProductWrapper = (props) => {
           flexDirection: 'column'
         }}
         cover={
-          <img
+          <Image
+            preview={props.imgPreview ? props.imgPreview : false}
             alt="image"
-            src="https://images.unsplash.com/photo-1536782376847-5c9d14d97cc0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8ZnJlZXxlbnwwfHwwfHw%3D&w=1000&q=80"
+            src={
+              product.productImage
+                ? `data:image/png;base64,${product.productImage.data}`
+                : defaultImage
+            }
+            style={
+              props.coverImageProps
+                ? props.coverImageProps
+                : { objectFit: 'cover', width: '100%', height: '220px' }
+            }
           />
         }
         actions={[

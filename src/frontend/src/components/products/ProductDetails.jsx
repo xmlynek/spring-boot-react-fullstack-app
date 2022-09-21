@@ -16,7 +16,11 @@ const ProductDetails = (props) => {
   };
 
   return (
-    <ProductWrapper product={product} onDelete={onDeleteHandler}>
+    <ProductWrapper
+      product={product}
+      onDelete={onDeleteHandler}
+      imgPreview
+      coverImageProps={{ objectFit: 'cover', width: '100%', maxHeight: '600px' }}>
       <div style={{ fontSize: 17 }}>
         <p>
           {`Name: ${product.name}`}

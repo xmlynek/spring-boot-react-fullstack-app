@@ -2,16 +2,19 @@ package com.filip.managementapp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.filip.managementapp.AbstractControllerITest;
+import com.filip.managementapp.dto.ImageFileDto;
 import com.filip.managementapp.dto.ProductDto;
+import com.filip.managementapp.dto.ProductRequest;
 import com.filip.managementapp.exception.ResourceAlreadyExistsException;
 import com.filip.managementapp.exception.ResourceNotFoundException;
 import com.filip.managementapp.mapper.ProductMapper;
+import com.filip.managementapp.model.ImageFile;
 import com.filip.managementapp.model.Product;
 import com.filip.managementapp.repository.ProductRepository;
 import com.filip.managementapp.service.ProductService;
+import com.filip.managementapp.validation.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -41,9 +44,18 @@ class ProductControllerTest extends AbstractControllerITest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
+    private ProductMapper productMapper;
+
+    private final TestUtils testUtils = new TestUtils();
 
     private final Product product;
+
+    private final ProductRequest productRequest;
+
+    @BeforeEach
+    void setUp() {
+        productRepository.deleteAll();
+    }
 
     public ProductControllerTest() {
         this.product = new Product(
@@ -53,20 +65,30 @@ class ProductControllerTest extends AbstractControllerITest {
                 "Great monitor using LCD technology",
                 15L,
                 199.50,
-                true
+                true,
+                new ImageFile(
+                        null,
+                        "filename.jpg",
+                        MediaType.IMAGE_JPEG_VALUE,
+                        "DATA".getBytes())
         );
-    }
+        this.productRequest = new ProductRequest(
+                null,
+                "Updated name",
+                "Updated short description",
+                "Updated description",
+                11L,
+                555.55,
+                false,
+                null
+        );
 
-    @BeforeEach
-    void setUp() {
-        productRepository.deleteAll();
     }
 
     @Test
     void findAllProductsShouldListOfProducts() throws Exception {
         List<Product> products = new ArrayList<>(
                 List.of(
-                        this.product,
                         new Product(
                                 null,
                                 "Product name 2",
@@ -120,7 +142,9 @@ class ProductControllerTest extends AbstractControllerITest {
 
         mockMvc.perform(get(PRODUCTS_API_URL + "/" + productId))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(savedProduct)));
+                .andExpect(content()
+                        .json(objectMapper.writeValueAsString(productMapper.productToProductDto(savedProduct)))
+                );
     }
 
     @Test
@@ -143,12 +167,12 @@ class ProductControllerTest extends AbstractControllerITest {
     @Test
     @WithMockUser(username = "username", roles = "ADMIN")
     void saveProductShouldSaveAndReturnProduct() throws Exception {
-        ProductDto productDtoRequest = productMapper.productToProductDto(this.product);
+        ProductRequest productRequest = productMapper.productToProductRequest(this.product);
 
         MvcResult mvcResult = mockMvc.perform(
-                        post(PRODUCTS_API_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(productDtoRequest))
+                        multipart(PRODUCTS_API_URL)
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(testUtils.buildUrlEncodedFormEntity(testUtils.getParamsFromProductRequest(productRequest)))
                 )
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -162,7 +186,7 @@ class ProductControllerTest extends AbstractControllerITest {
         assertThat(savedProductDtoResponse)
                 .isNotNull()
                 .isEqualTo(productMapper.productToProductDto(savedProducts.get(0)))
-                .hasNoNullFieldsOrProperties()
+                .hasNoNullFieldsOrPropertiesExcept("productImage")
                 .hasFieldOrPropertyWithValue("name", this.product.getName())
                 .hasFieldOrPropertyWithValue("price", this.product.getPrice())
                 .hasFieldOrPropertyWithValue("isAvailable", this.product.getIsAvailable())
@@ -175,13 +199,16 @@ class ProductControllerTest extends AbstractControllerITest {
     @Test
     @WithMockUser(username = "username", roles = "ADMIN")
     void saveProductShouldReturnResourceAlreadyExistsApiException() throws Exception {
-        ProductDto productDtoRequest = productMapper.productToProductDto(this.product);
+        ProductRequest productDtoRequest = productMapper.productToProductRequest(this.product);
         productRepository.saveAndFlush(this.product);
 
         MvcResult mvcResult = mockMvc.perform(
                         post(PRODUCTS_API_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(productDtoRequest))
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(testUtils.buildUrlEncodedFormEntity(
+                                            testUtils.getParamsFromProductRequest(productDtoRequest)
+                                        )
+                                )
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -197,12 +224,15 @@ class ProductControllerTest extends AbstractControllerITest {
 
     @Test
     void saveProductShouldReturnUnauthorized() throws Exception {
-        ProductDto productDtoRequest = productMapper.productToProductDto(this.product);
+        ProductRequest productDtoRequest = productMapper.productToProductRequest(this.product);
 
         mockMvc.perform(
                         post(PRODUCTS_API_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(productDtoRequest))
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(testUtils.buildUrlEncodedFormEntity(
+                                                testUtils.getParamsFromProductRequest(productDtoRequest)
+                                        )
+                                )
                 )
                 .andExpect(status().isUnauthorized());
 
@@ -214,12 +244,15 @@ class ProductControllerTest extends AbstractControllerITest {
     @Test
     @WithMockUser(username = "username")
     void saveProductShouldReturnForbidden() throws Exception {
-        ProductDto productDtoRequest = productMapper.productToProductDto(this.product);
+        ProductRequest productDtoRequest = productMapper.productToProductRequest(this.product);
 
         mockMvc.perform(
                         post(PRODUCTS_API_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(productDtoRequest))
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(testUtils.buildUrlEncodedFormEntity(
+                                                testUtils.getParamsFromProductRequest(productDtoRequest)
+                                        )
+                                )
                 )
                 .andExpect(status().isForbidden());
 
@@ -232,15 +265,6 @@ class ProductControllerTest extends AbstractControllerITest {
     @WithMockUser(username = "username", roles = "ADMIN")
     void shouldUpdateProduct() throws Exception {
         Product savedProduct = productRepository.saveAndFlush(this.product);
-        ProductDto productRequest = new ProductDto(
-                null,
-                "Updated name",
-                "Updated short description",
-                "Updated description",
-                11L,
-                555.55,
-                false
-        );
         Long productId = savedProduct.getId();
 
         ProductDto expectedProductDtoResponse = new ProductDto(
@@ -250,13 +274,24 @@ class ProductControllerTest extends AbstractControllerITest {
                 productRequest.description(),
                 productRequest.quantity(),
                 productRequest.price(),
-                productRequest.isAvailable()
+                productRequest.isAvailable(),
+                new ImageFileDto(
+                        savedProduct.getProductImage().getFilename(),
+                        savedProduct.getProductImage().getContentType(),
+                        savedProduct.getProductImage().getData()
+                )
         );
+        Product expectedUpdatedProduct = productMapper.productDtoToProduct(expectedProductDtoResponse);
+        expectedUpdatedProduct.setProductImage(savedProduct.getProductImage());
+        expectedUpdatedProduct.setId(savedProduct.getId());
 
         mockMvc.perform(
                 put(PRODUCTS_API_URL + "/" + productId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(productRequest))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(testUtils.buildUrlEncodedFormEntity(
+                                        testUtils.getParamsFromProductRequest(this.productRequest)
+                                )
+                        )
         )
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expectedProductDtoResponse)));
@@ -267,7 +302,7 @@ class ProductControllerTest extends AbstractControllerITest {
         assertThat(savedUpdatedProduct)
                 .isNotNull()
                 .isPresent()
-                .contains(productMapper.productDtoToProduct(expectedProductDtoResponse));
+                .contains(expectedUpdatedProduct);
         assertThat(savedProducts.size()).isOne();
     }
 
@@ -275,21 +310,15 @@ class ProductControllerTest extends AbstractControllerITest {
     @WithMockUser(username = "username", roles = "ADMIN")
     void updateProductShouldReturnResourceNotFoundApiException() throws Exception {
         Product savedProduct = productRepository.saveAndFlush(this.product);
-        ProductDto productRequest = new ProductDto(
-                null,
-                "Updated name",
-                "Updated short description",
-                "Updated description",
-                11L,
-                555.55,
-                false
-        );
         long productId = savedProduct.getId() + 1;
 
         MvcResult mvcResult = mockMvc.perform(
                         put(PRODUCTS_API_URL + "/" + productId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(productRequest))
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(testUtils.buildUrlEncodedFormEntity(
+                                                testUtils.getParamsFromProductRequest(this.productRequest)
+                                        )
+                                )
                 )
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -321,21 +350,25 @@ class ProductControllerTest extends AbstractControllerITest {
                 true
         ));
 
-        ProductDto productRequest = new ProductDto(
+        ProductRequest productRequest = new ProductRequest(
                 null,
                 anotherSavedProduct.getName(),
                 "Updated short description",
                 "Updated description",
                 11L,
                 555.55,
-                false
+                false,
+                null
         );
         long productId = savedProduct.getId();
 
         MvcResult mvcResult = mockMvc.perform(
                         put(PRODUCTS_API_URL + "/" + productId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(productRequest))
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(testUtils.buildUrlEncodedFormEntity(
+                                                testUtils.getParamsFromProductRequest(productRequest)
+                                        )
+                                )
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -361,21 +394,15 @@ class ProductControllerTest extends AbstractControllerITest {
     @Test
     void updateUserShouldReturnUnauthorized() throws Exception {
         Product savedProduct = productRepository.saveAndFlush(this.product);
-        ProductDto productRequest = new ProductDto(
-                null,
-                "Updated name",
-                "Updated short description",
-                "Updated description",
-                11L,
-                555.55,
-                false
-        );
         Long productId = savedProduct.getId();
 
         mockMvc.perform(
                 put(PRODUCTS_API_URL + "/" + productId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(productRequest))
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content(testUtils.buildUrlEncodedFormEntity(
+                                        testUtils.getParamsFromProductRequest(productRequest)
+                                )
+                        )
                 )
                 .andExpect(status().isUnauthorized());
 
@@ -388,21 +415,15 @@ class ProductControllerTest extends AbstractControllerITest {
     @WithMockUser(username = "username")
     void updateUserShouldReturnForbidden() throws Exception {
         Product savedProduct = productRepository.saveAndFlush(this.product);
-        ProductDto productRequest = new ProductDto(
-                null,
-                "Updated name",
-                "Updated short description",
-                "Updated description",
-                11L,
-                555.55,
-                false
-        );
         Long productId = savedProduct.getId();
 
         mockMvc.perform(
                         put(PRODUCTS_API_URL + "/" + productId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(productRequest))
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .content(testUtils.buildUrlEncodedFormEntity(
+                                                testUtils.getParamsFromProductRequest(productRequest)
+                                        )
+                                )
                 )
                 .andExpect(status().isForbidden());
 

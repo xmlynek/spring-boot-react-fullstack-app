@@ -33,14 +33,34 @@ export const ProductContextProvider = (props) => {
     await sendRequest({ url: `/api/v1/products/${productId}` }, setCurrentProductById);
   };
 
+  const createFormDataFromFormValues = (values) => {
+    let formData = new FormData();
+    for (const key in values) {
+      if (key === 'productImage' && (!values[key] || !values[key].file)) {
+        continue;
+      }
+      formData.append(key, key === 'productImage' ? values[key].file : values[key]);
+    }
+    return formData;
+  };
+
   const createProductHandler = async (data) => {
-    await sendRequest({ url: `/api/v1/products`, method: 'POST', data: data }, (data) => {
-      successNotification(
-        `Product created successfully`,
-        `Product ${data.name} was successfully created`
-      );
-      fetchProductsHandler();
-    });
+    const formData = createFormDataFromFormValues(data);
+
+    await sendRequest(
+      {
+        url: `/api/v1/products`,
+        method: 'POST',
+        data: formData
+      },
+      (data) => {
+        successNotification(
+          `Product created successfully`,
+          `Product ${data.name} was successfully created`
+        );
+        fetchProductsHandler();
+      }
+    );
   };
 
   const deleteProductHandler = async (productId) => {
@@ -54,8 +74,10 @@ export const ProductContextProvider = (props) => {
   };
 
   const updateProductHandler = async (productId, data) => {
+    const formData = createFormDataFromFormValues(data);
+
     await sendRequest(
-      { url: `/api/v1/products/${productId}`, method: 'PUT', data: data },
+      { url: `/api/v1/products/${productId}`, method: 'PUT', data: formData },
       (res) => {
         successNotification(
           `Product updated successfully`,

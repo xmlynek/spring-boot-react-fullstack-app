@@ -1,14 +1,16 @@
 package com.filip.managementapp.service;
 
 import com.filip.managementapp.dto.ProductDto;
+import com.filip.managementapp.dto.ProductRequest;
 import com.filip.managementapp.exception.ResourceAlreadyExistsException;
 import com.filip.managementapp.exception.ResourceNotFoundException;
+import com.filip.managementapp.mapper.ImageFileMapperImpl;
 import com.filip.managementapp.mapper.ProductMapper;
+import com.filip.managementapp.mapper.ProductMapperImpl;
 import com.filip.managementapp.model.Product;
 import com.filip.managementapp.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -31,12 +33,14 @@ class ProductServiceTest {
     private ProductRepository productRepository;
 
     @Spy
-    private ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
+    private ProductMapper productMapper = new ProductMapperImpl(new ImageFileMapperImpl());
 
     @InjectMocks
     private ProductService productService;
 
     private final Product product;
+
+    private final ProductRequest productRequest;
 
     public ProductServiceTest() {
         this.product = new Product(
@@ -47,6 +51,16 @@ class ProductServiceTest {
                 15L,
                 199.50,
                 true
+        );
+        this.productRequest = new ProductRequest(
+                null,
+                "Name",
+                "ShortDesc",
+                "Descr",
+                1235L,
+                15.32,
+                true,
+                null
         );
     }
 
@@ -146,19 +160,9 @@ class ProductServiceTest {
     @Test
     void shouldSaveProduct() {
         // given
-        ProductDto productRequest = new ProductDto(
-                null,
-                "Name",
-                "ShortDesc",
-                "Descr",
-                1235L,
-                15.32,
-                true
-        );
+        Product mappedEntity = productMapper.productRequestToProduct(productRequest);
 
-        Product mappedEntity = productMapper.productDtoToProduct(productRequest);
-
-        Product expectedEntity = productMapper.productDtoToProduct(productRequest);
+        Product expectedEntity = productMapper.productRequestToProduct(productRequest);
         expectedEntity.setId(1L);
 
         given(productRepository.existsByName(productRequest.name())).willReturn(false);
@@ -177,20 +181,9 @@ class ProductServiceTest {
 
     @Test
     void saveProductShouldThrowResourceAlreadyExistsException() {
-        ProductDto productRequest = new ProductDto(
-                null,
-                "Name",
-                "ShortDesc",
-                "Descr",
-                1235L,
-                15.32,
-                true
-        );
-
-        String productName = productRequest.name();
         // given
+        String productName = productRequest.name();
         given(productRepository.existsByName(productName)).willReturn(true);
-
 
         // when
         // then
@@ -204,18 +197,9 @@ class ProductServiceTest {
     @Test
     void shouldUpdateProduct() {
         // given
-        ProductDto productRequest = new ProductDto(
-                null,
-                "Name",
-                "ShortDesc",
-                "Descr",
-                1235L,
-                15.32,
-                true
-        );
         Long productId = this.product.getId();
 
-        Product productToUpdate = productMapper.productDtoToProduct(productRequest);
+        Product productToUpdate = productMapper.productRequestToProduct(productRequest);
         productToUpdate.setId(productId);
 
         given(productRepository.findById(productId)).willReturn(Optional.of(this.product));
@@ -235,17 +219,8 @@ class ProductServiceTest {
     }
 
     @Test
-    void updateProductShouldThrowResourceNotFoundException() {
+    void updateProductShouldThrowResourceAlreadyExistsException() {
         // given
-        ProductDto productRequest = new ProductDto(
-                null,
-                "Name",
-                "ShortDesc",
-                "Descr",
-                1235L,
-                15.32,
-                true
-        );
         Long productId = 1L;
         given(productRepository.findById(productId)).willReturn(Optional.of(this.product));
         given(productRepository.existsByName(productRequest.name())).willReturn(true);
@@ -261,17 +236,8 @@ class ProductServiceTest {
     }
 
     @Test
-    void updateProductShouldThrowResourceAlreadyExistsException() {
+    void updateProductShouldThrowResourceNotFoundException() {
         // given
-        ProductDto productRequest = new ProductDto(
-                null,
-                "Name",
-                "ShortDesc",
-                "Descr",
-                1235L,
-                15.32,
-                true
-        );
         Long productId = 1L;
         given(productRepository.findById(productId)).willReturn(Optional.empty());
 

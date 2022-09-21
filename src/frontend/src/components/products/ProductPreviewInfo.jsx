@@ -26,6 +26,7 @@ const ProductPreviewInfo = (props) => {
         flexDirection: 'column',
         justifyContent: 'space-between',
         maxWidth: 320,
+        width: 320,
         height: 440,
         maxHeight: 440,
         opacity: product.isAvailable ? 1 : 0.75

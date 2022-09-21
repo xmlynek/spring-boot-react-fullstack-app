@@ -1,6 +1,7 @@
 package com.filip.managementapp.service;
 
 import com.filip.managementapp.dto.ProductDto;
+import com.filip.managementapp.dto.ProductRequest;
 import com.filip.managementapp.exception.ResourceAlreadyExistsException;
 import com.filip.managementapp.exception.ResourceNotFoundException;
 import com.filip.managementapp.mapper.ProductMapper;
@@ -42,18 +43,19 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductDto saveProduct(ProductDto productRequest) {
+    public ProductDto saveProduct(ProductRequest productRequest) {
         if(productRepository.existsByName(productRequest.name())) {
             throw new ResourceAlreadyExistsException(
                     String.format(PRODUCT_WITH_GIVEN_NAME_EXISTS_STRING, productRequest.name())
             );
         }
-        Product productToSave = productMapper.productDtoToProduct(productRequest);
+        Product productToSave = productMapper.productRequestToProduct(productRequest);
+
         return productMapper.productToProductDto(productRepository.save(productToSave));
     }
 
     @Transactional
-    public ProductDto updateProduct(Long productId, ProductDto productRequest) {
+    public ProductDto updateProduct(Long productId, ProductRequest productRequest) {
         Product currentProduct = productRepository
                 .findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(PRODUCT_BY_ID_NOT_FOUND_STRING, productId)));
@@ -65,8 +67,11 @@ public class ProductService {
             );
         }
 
-        Product productToUpdate = productMapper.productDtoToProduct(productRequest);
+        Product productToUpdate = productMapper.productRequestToProduct(productRequest);
         productToUpdate.setId(currentProduct.getId());
+        if (productToUpdate.getProductImage() == null) {
+           productToUpdate.setProductImage(currentProduct.getProductImage());
+        }
 
         return productMapper.productToProductDto(productRepository.save(productToUpdate));
     }
