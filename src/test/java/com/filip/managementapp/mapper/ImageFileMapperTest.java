@@ -48,7 +48,6 @@ class ImageFileMapperTest {
         assertThat(output)
                 .isNotNull()
                 .hasNoNullFieldsOrProperties()
-                .usingRecursiveComparison()
                 .isEqualTo(imageFileDto);
         assertArrayEquals(output.data(), imageFile.getData());
     }
@@ -61,11 +60,12 @@ class ImageFileMapperTest {
     @Test
     void imageFileDtoToImageFile() {
         ImageFile output = imageFileMapper.imageFileDtoToImageFile(imageFileDto);
+        imageFile.setId(null);
 
         assertThat(output)
                 .isNotNull()
                 .hasNoNullFieldsOrPropertiesExcept("id")
-                .hasFieldOrPropertyWithValue("data", imageFile.getData());
+                .isEqualTo(imageFile);
     }
 
     @Test

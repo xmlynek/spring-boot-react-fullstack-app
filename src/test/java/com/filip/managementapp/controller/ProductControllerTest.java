@@ -89,6 +89,7 @@ class ProductControllerTest extends AbstractControllerITest {
     void findAllProductsShouldListOfProducts() throws Exception {
         List<Product> products = new ArrayList<>(
                 List.of(
+                        product,
                         new Product(
                                 null,
                                 "Product name 2",

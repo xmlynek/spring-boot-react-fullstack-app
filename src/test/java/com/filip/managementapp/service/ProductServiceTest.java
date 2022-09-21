@@ -25,7 +25,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -111,8 +110,7 @@ class ProductServiceTest {
                 .isNotNull()
                 .isNotEmpty()
                 .hasSize(3)
-                .usingRecursiveComparison()
-                .isEqualTo(products.stream().map(productMapper::productToProductDto).toList());
+                .containsAll(products.stream().map(productMapper::productToProductDto).toList());
         verify(productRepository, times(1)).findAll(isAvailableSort);
     }
 
@@ -137,18 +135,14 @@ class ProductServiceTest {
         given(productRepository.findById(productId)).willReturn(Optional.of(product));
 
         // when
-
         ProductDto productDto = productService.findProductById(productId);
 
         // then
         verify(productMapper, times(1)).productToProductDto(product);
-        assertArrayEquals(productDto.productImage().data(), product.getProductImage().getData());
         assertThat(productDto)
                 .isNotNull()
-                .usingRecursiveComparison()
                 .isEqualTo(productMapper.productToProductDto(product));
         verify(productRepository, times(1)).findById(productId);
-
     }
 
     @Test
