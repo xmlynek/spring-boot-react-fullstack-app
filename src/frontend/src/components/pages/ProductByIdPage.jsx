@@ -4,7 +4,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import Spinner from '../UI/Spinner';
 import ProductContext from '../../store/products-context';
-// import MainHeading from '../layout/MainHeading';
 import { State } from '../../hooks/useAxiosRequest';
 import { Modal, Result } from 'antd';
 import ProductDetails from '../products/ProductDetails';
@@ -39,7 +38,7 @@ const ProductByIdPage = () => {
     );
   }
 
-  if (!currentProductById && !state.isLoading && state.status === State.ERROR) {
+  if (!currentProductById) {
     output = (
       <Result
         status="404"
