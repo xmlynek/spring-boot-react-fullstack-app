@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -45,7 +46,19 @@ public class Product implements Serializable {
     @OneToOne(cascade = CascadeType.ALL)
     private ImageFile productImage;
 
-    public Product(Long id, String name, String shortDescription, String description, Long quantity, Double price, Boolean isAvailable) {
+    @OneToMany(mappedBy = "product")
+    private List<OrderProduct> orderProducts;
+
+    @OneToMany(mappedBy = "product")
+    private List<ShoppingCartItem> shoppingCartItems;
+
+    public Product(Long id,
+                   String name,
+                   String shortDescription,
+                   String description,
+                   Long quantity,
+                   Double price,
+                   Boolean isAvailable) {
         this.id = id;
         this.name = name;
         this.shortDescription = shortDescription;
@@ -53,5 +66,23 @@ public class Product implements Serializable {
         this.quantity = quantity;
         this.price = price;
         this.isAvailable = isAvailable;
+    }
+
+    public Product(Long id,
+                   String name,
+                   String shortDescription,
+                   String description,
+                   Long quantity,
+                   Double price,
+                   Boolean isAvailable,
+                   ImageFile productImage) {
+        this.id = id;
+        this.name = name;
+        this.shortDescription = shortDescription;
+        this.description = description;
+        this.quantity = quantity;
+        this.price = price;
+        this.isAvailable = isAvailable;
+        this.productImage = productImage;
     }
 }
