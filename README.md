@@ -22,3 +22,5 @@ Once the application is done, it should represent simple Eshop prototype.
 - Axios
 - Context-api
 - Custom hooks
+
+SonarQube overview: https://sonarcloud.io/project/overview?id=spring-boot-react-fs
